@@ -130,6 +130,30 @@
     font-size:28px;
     flex:none;
   }
+  /* 各店家識別色（用色塊輔助辨認，不使用官方商標圖案） */
+  .wifi-icon.brand-familymart{background:#0E4A2E;}
+  .wifi-icon.brand-mrt{background:#0E3A66;}
+  .wifi-icon.brand-seven{background:#5C3A0E;}
+  .wifi-icon.brand-mcd{background:#5C4200;}
+
+  .confirm-btn{
+    margin-top:10px;
+    width:100%;
+    min-height:56px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:transparent;
+    color:var(--text-muted);
+    font-size:17px;
+    font-weight:800;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .confirm-btn:active{background:var(--surface-2);}
+  .confirm-btn.done{
+    border-color:var(--teal);
+    background:var(--teal-dim);
+    color:var(--teal);
+  }
   .wifi-name{font-size:21px; font-weight:800; line-height:1.3;}
   .wifi-ssid{font-size:14.5px; color:var(--teal); font-weight:700; margin-top:2px;}
   .steps{list-style:none; margin:14px 0; padding:0; display:flex; flex-direction:column; gap:10px;}
@@ -318,9 +342,9 @@
     <section class="tab-panel active" id="panel-wifi">
       <p class="section-lead">照著卡片上的順序點就好，每個地方都不用輸入密碼。</p>
 
-      <div class="wifi-card" data-speak="全家 Fami-WiFi。第一步，連線 Family-WiFi。第二步，勾選同意。第三步，點開始上網。免個資，每次三十分鐘，一天可以用三次。">
+      <div class="wifi-card" data-key="familymart" data-speak="全家 Fami-WiFi。第一步，連線 Family-WiFi。第二步，勾選同意。第三步，點開始上網。免個資，每次三十分鐘，一天可以用三次。">
         <div class="wifi-card-head">
-          <div class="wifi-icon">🏪</div>
+          <div class="wifi-icon brand-familymart">🏪</div>
           <div>
             <div class="wifi-name">全家超商</div>
             <div class="wifi-ssid">連線名稱：Family-WiFi</div>
@@ -333,11 +357,12 @@
         </ol>
         <div class="wifi-note">🕒 免個資、免填資料 · 每次30分鐘 · 一天最多3次</div>
         <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
       </div>
 
-      <div class="wifi-card" data-speak="捷運或政府機關。第一步，連線 TPE-Free 或 iTaiwan。第二步，勾選同意。第三步，點連線。不限次數，每次三十分鐘，斷線可以無限次重新連線，站內通常有免費充電座。">
+      <div class="wifi-card" data-key="mrt" data-speak="捷運或政府機關。第一步，連線 TPE-Free 或 iTaiwan。第二步，勾選同意。第三步，點連線。不限次數，每次三十分鐘，斷線可以無限次重新連線，站內通常有免費充電座。">
         <div class="wifi-card-head">
-          <div class="wifi-icon">🚇</div>
+          <div class="wifi-icon brand-mrt">🚇</div>
           <div>
             <div class="wifi-name">捷運站・政府機關</div>
             <div class="wifi-ssid">連線名稱：TPE-Free 或 iTaiwan</div>
@@ -350,11 +375,12 @@
         </ol>
         <div class="wifi-note">🔌 不限次數 · 每次30分鐘，斷線可再連 · 站內通常有充電座</div>
         <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
       </div>
 
-      <div class="wifi-card" data-speak="7-11 超商。第一步，連線 7-ELEVEN-WiFi。第二步，帳號密碼會自動幫你填好。第三步，直接點登入。志工已經幫你設定好帳號，每次三十分鐘，一天可以用三次。">
+      <div class="wifi-card" data-key="seven11" data-speak="7-11 超商。第一步，連線 7-ELEVEN-WiFi。第二步，帳號密碼會自動幫你填好。第三步，直接點登入。志工已經幫你設定好帳號，每次三十分鐘，一天可以用三次。">
         <div class="wifi-card-head">
-          <div class="wifi-icon">🏬</div>
+          <div class="wifi-icon brand-seven">🏬</div>
           <div>
             <div class="wifi-name">7-11 超商</div>
             <div class="wifi-ssid">連線名稱：7-ELEVEN-WiFi</div>
@@ -367,11 +393,12 @@
         </ol>
         <div class="wifi-note">✅ 志工已幫你設定好帳號 · 每次30分鐘 · 一天最多3次</div>
         <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
       </div>
 
-      <div class="wifi-card" data-speak="麥當勞，備用避雨點。第一步，連線 McDonalds_WiFi。第二步，點同意並開始上網。">
+      <div class="wifi-card" data-key="mcdonalds" data-speak="麥當勞，備用避雨點。第一步，連線 McDonalds_WiFi。第二步，點同意並開始上網。">
         <div class="wifi-card-head">
-          <div class="wifi-icon">🍟</div>
+          <div class="wifi-icon brand-mcd">🍟</div>
           <div>
             <div class="wifi-name">麥當勞</div>
             <div class="wifi-ssid">連線名稱：McDonalds_WiFi</div>
@@ -383,6 +410,7 @@
         </ol>
         <div class="wifi-note">☔ 備用避雨點</div>
         <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
       </div>
     </section>
 
@@ -533,6 +561,62 @@ const RESOURCES = [
   // { type:"wash", title:"XX 公共盥洗室", items:["地點：____","開放時間：____"] },
 ];
 
+/* =========================================================
+   Google 試算表串接（志工不用碰程式碼就能新增資源）
+   設定方式：
+   1. 建一個 Google 試算表，第一列（標題列）依序填：type,title,item1,item2,item3,item4
+      type 只能填 shelter / food / wash 三種之一
+      例如第二列：shelter,萬華臨時收容所,地址：____,開放時間：____,電話：____,
+   2. 檔案 → 共用 → 發布到網路 → 選這張工作表、格式選 CSV → 複製連結
+   3. 把連結貼到下面 GOOGLE_SHEET_CSV_URL 這行的引號中間即可，其餘不用改
+   ========================================================= */
+const GOOGLE_SHEET_CSV_URL = ""; // 例如 "https://docs.google.com/spreadsheets/d/xxxx/pub?output=csv"
+
+function parseCSV(text){
+  return text.trim().split(/\r?\n/).map(line=>{
+    const cells = [];
+    let cur = "", inQuotes = false;
+    for (let i=0;i<line.length;i++){
+      const c = line[i];
+      if (c === '"'){ inQuotes = !inQuotes; }
+      else if (c === "," && !inQuotes){ cells.push(cur); cur=""; }
+      else { cur += c; }
+    }
+    cells.push(cur);
+    return cells.map(c=>c.trim());
+  });
+}
+
+async function loadResourcesFromSheet(){
+  if (!GOOGLE_SHEET_CSV_URL) return; // 尚未設定，跳過
+  try{
+    const res = await fetch(GOOGLE_SHEET_CSV_URL);
+    const text = await res.text();
+    localStorage.setItem("resourcesCSV", text); // 存起來，離線時也能用上次抓到的資料
+    applyCSV(text);
+  }catch(e){
+    const cached = localStorage.getItem("resourcesCSV");
+    if (cached) applyCSV(cached);
+  }
+}
+
+function applyCSV(text){
+  const rows = parseCSV(text);
+  const body = rows[0] && rows[0][0] && rows[0][0].toLowerCase() === "type" ? rows.slice(1) : rows;
+  const fromSheet = body
+    .filter(r => r[0] && r[1])
+    .map(r => ({
+      type: r[0].trim(),
+      title: r[1].trim(),
+      items: r.slice(2).map(x=>x.trim()).filter(Boolean)
+    }));
+  if (fromSheet.length){
+    RESOURCES.length = 0;
+    RESOURCES.push(...fromSheet);
+    renderResources();
+  }
+}
+
 const RES_META = {
   shelter:{icon:"🛏", label:"收容・避寒"},
   food:{icon:"🍚", label:"供餐資訊"},
@@ -544,7 +628,7 @@ function renderResources(){
   if (RESOURCES.length === 0){
     list.innerHTML = `<div class="res-card">
       <div class="res-head"><span class="res-icon">📍</span><span class="res-title">尚未填寫在地資源</span></div>
-      <div class="res-empty">志工可以打開 index.html，在 RESOURCES 陣列裡加入當地收容所、供餐、盥洗地點的資訊。</div>
+      <div class="res-empty">志工可以透過 Google 試算表新增當地收容所、供餐、盥洗地點的資訊，這裡就會自動顯示。</div>
     </div>`;
     return;
   }
@@ -557,6 +641,7 @@ function renderResources(){
   }).join("");
 }
 renderResources();
+loadResourcesFromSheet();
 
 /* ---------- 底部導覽切換 ---------- */
 const navBtns = document.querySelectorAll(".nav-btn");
@@ -577,6 +662,25 @@ document.querySelectorAll(".map-tab").forEach(tab=>{
     tab.classList.add("active");
     document.querySelectorAll(".map-frame").forEach(f=>f.classList.remove("active"));
     document.getElementById("map-"+tab.dataset.map).classList.add("active");
+  });
+});
+
+/* ---------- 「我已經連上了」確認按鈕（本機記住，重開網頁還記得） ---------- */
+document.querySelectorAll("[data-confirm-btn]").forEach(btn=>{
+  const card = btn.closest("[data-key]");
+  const storeKey = "wifi-confirmed-" + card.dataset.key;
+  function applyState(){
+    const done = localStorage.getItem(storeKey) === "1";
+    btn.classList.toggle("done", done);
+    btn.textContent = done ? "✅ 已連線成功" : "☑️ 我已經連上了";
+  }
+  try{ applyState(); }catch(e){}
+  btn.addEventListener("click", ()=>{
+    try{
+      const done = localStorage.getItem(storeKey) === "1";
+      if (done){ localStorage.removeItem(storeKey); } else { localStorage.setItem(storeKey, "1"); }
+      applyState();
+    }catch(e){}
   });
 });
 
