@@ -123,18 +123,15 @@
     margin-bottom:14px;
   }
   .wifi-icon{
-    width:52px; height:52px;
+    width:56px; height:56px;
     border-radius:14px;
-    background:var(--teal-dim);
+    background:#fff;
     display:flex; align-items:center; justify-content:center;
-    font-size:28px;
     flex:none;
+    padding:6px;
+    box-shadow:0 0 0 1px var(--line);
   }
-  /* 各店家識別色（用色塊輔助辨認，不使用官方商標圖案） */
-  .wifi-icon.brand-familymart{background:#0E4A2E;}
-  .wifi-icon.brand-mrt{background:#0E3A66;}
-  .wifi-icon.brand-seven{background:#5C3A0E;}
-  .wifi-icon.brand-mcd{background:#5C4200;}
+  .wifi-icon img{width:100%; height:100%; object-fit:contain; display:block;}
 
   .confirm-btn{
     margin-top:10px;
@@ -155,7 +152,7 @@
     color:var(--teal);
   }
   .wifi-name{font-size:21px; font-weight:800; line-height:1.3;}
-  .wifi-ssid{font-size:14.5px; color:var(--teal); font-weight:700; margin-top:2px;}
+  .wifi-ssid{font-size:18px; color:var(--teal); font-weight:800; margin-top:3px; line-height:1.4;}
   .steps{list-style:none; margin:14px 0; padding:0; display:flex; flex-direction:column; gap:10px;}
   .step{display:flex; align-items:flex-start; gap:12px;}
   .step-num{
@@ -316,41 +313,14 @@
   .install-banner.show{display:block;}
   .install-banner b{color:var(--teal);}
 
-  .usage-counter{
-    margin:0 18px 18px;
-    font-size:13px;
-    color:var(--text-muted);
-    text-align:center;
-  }
-
-  /* ---------- Wi-Fi 分頁上方的圖示教學（一次性，適用所有卡片） ---------- */
+  /* ---------- Wi-Fi 分頁上方的手機示意圖教學（一次性，適用所有卡片） ---------- */
   .howto-strip{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:6px;
     background:var(--surface);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:16px 12px;
+    padding:14px 10px 6px;
     margin:0 4px 20px;
   }
-  .howto-step{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    flex:1;
-    min-width:0;
-  }
-  .howto-icon{font-size:28px;}
-  .howto-label{
-    font-size:12.5px;
-    color:var(--text-muted);
-    text-align:center;
-    line-height:1.4;
-  }
-  .howto-arrow{color:var(--line); font-size:18px; flex:none; padding-bottom:20px;}
 </style>
 </head>
 <body class="is-offline">
@@ -372,39 +342,70 @@
     瀏覽器選單 → 「加到主畫面」或「安裝應用程式」。
   </div>
 
-  <div class="usage-counter" id="usageCounter"></div>
-
   <main>
 
     <!-- ============ 上網 ============ -->
     <section class="tab-panel active" id="panel-wifi">
       <div class="howto-strip">
-        <div class="howto-step">
-          <div class="howto-icon">⚙️</div>
-          <div class="howto-label">打開手機<br>「設定」</div>
-        </div>
-        <div class="howto-arrow">›</div>
-        <div class="howto-step">
-          <div class="howto-icon">📶</div>
-          <div class="howto-label">點<br>「Wi-Fi」</div>
-        </div>
-        <div class="howto-arrow">›</div>
-        <div class="howto-step">
-          <div class="howto-icon">👇</div>
-          <div class="howto-label">找卡片上<br>寫的名字</div>
-        </div>
-        <div class="howto-arrow">›</div>
-        <div class="howto-step">
-          <div class="howto-icon">✅</div>
-          <div class="howto-label">點它<br>連上去</div>
-        </div>
+        <svg viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
+          <!-- 手機1：主畫面找設定 -->
+          <g transform="translate(0,0)">
+            <rect x="4" y="4" width="104" height="182" rx="18" fill="#1D3050"/>
+            <rect x="12" y="18" width="88" height="154" rx="6" fill="#F5F3ED"/>
+            <rect x="42" y="10" width="24" height="4" rx="2" fill="#1D3050"/>
+            <!-- app icon grid -->
+            <rect x="22" y="30" width="20" height="20" rx="6" fill="#D8D3C4"/>
+            <rect x="48" y="30" width="20" height="20" rx="6" fill="#D8D3C4"/>
+            <rect x="74" y="30" width="20" height="20" rx="6" fill="#D8D3C4"/>
+            <rect x="22" y="56" width="20" height="20" rx="6" fill="#D8D3C4"/>
+            <rect x="74" y="56" width="20" height="20" rx="6" fill="#D8D3C4"/>
+            <!-- highlighted settings gear icon -->
+            <circle cx="58" cy="66" r="17" fill="none" stroke="#FF6B4A" stroke-width="2.5"/>
+            <rect x="48" y="56" width="20" height="20" rx="6" fill="#4A5A78"/>
+            <text x="58" y="70" text-anchor="middle" font-size="13" fill="#F5F3ED">⚙</text>
+            <text x="58" y="105" text-anchor="middle" font-size="8.5" fill="#5A6A88" font-weight="700">設定</text>
+          </g>
+          <text x="56" y="200" text-anchor="middle" font-size="11.5" fill="#F5F3ED" font-weight="700">① 打開「設定」</text>
+
+          <text x="128" y="98" font-size="20" fill="#4A5F80">›</text>
+
+          <!-- 手機2：設定選單找Wi-Fi -->
+          <g transform="translate(146,0)">
+            <rect x="4" y="4" width="104" height="182" rx="18" fill="#1D3050"/>
+            <rect x="12" y="18" width="88" height="154" rx="6" fill="#F5F3ED"/>
+            <rect x="42" y="10" width="24" height="4" rx="2" fill="#1D3050"/>
+            <!-- menu rows -->
+            <rect x="20" y="30" width="72" height="14" rx="3" fill="#E4E0D4"/>
+            <rect x="20" y="49" width="72" height="16" rx="4" fill="none" stroke="#FF6B4A" stroke-width="2.5"/>
+            <text x="26" y="60" font-size="9.5" fill="#1D3050" font-weight="700">📶 Wi-Fi</text>
+            <rect x="20" y="70" width="72" height="14" rx="3" fill="#E4E0D4"/>
+            <rect x="20" y="89" width="72" height="14" rx="3" fill="#E4E0D4"/>
+          </g>
+          <text x="202" y="200" text-anchor="middle" font-size="11.5" fill="#F5F3ED" font-weight="700">② 點「Wi-Fi」</text>
+
+          <text x="274" y="98" font-size="20" fill="#4A5F80">›</text>
+
+          <!-- 手機3：Wi-Fi清單點名字 -->
+          <g transform="translate(292,0)">
+            <rect x="4" y="4" width="104" height="182" rx="18" fill="#1D3050"/>
+            <rect x="12" y="18" width="88" height="154" rx="6" fill="#F5F3ED"/>
+            <rect x="42" y="10" width="24" height="4" rx="2" fill="#1D3050"/>
+            <!-- wifi network rows -->
+            <rect x="20" y="30" width="72" height="13" rx="3" fill="#E4E0D4"/>
+            <rect x="20" y="48" width="72" height="16" rx="4" fill="#1F4A42"/>
+            <text x="26" y="59" font-size="8" fill="#4FD1AE" font-weight="700">✓ Family-WiFi</text>
+            <rect x="20" y="69" width="72" height="13" rx="3" fill="#E4E0D4"/>
+            <rect x="20" y="87" width="72" height="13" rx="3" fill="#E4E0D4"/>
+          </g>
+          <text x="348" y="200" text-anchor="middle" font-size="11.5" fill="#F5F3ED" font-weight="700">③ 點卡片上的名字</text>
+        </svg>
       </div>
       <p class="section-lead">連上後照著卡片上的順序點就好，每個地方都不用輸入密碼。</p>
 
 
       <div class="wifi-card" data-key="familymart" data-speak="全家 Fami-WiFi。第一步，連線 Family-WiFi。第二步，勾選同意。第三步，點開始上網。免個資，每次三十分鐘，一天可以用三次。">
         <div class="wifi-card-head">
-          <div class="wifi-icon brand-familymart">🏪</div>
+          <div class="wifi-icon"><img src="logos/familymart.png" alt="全家"></div>
           <div>
             <div class="wifi-name">全家超商</div>
             <div class="wifi-ssid">連線名稱：Family-WiFi</div>
@@ -422,7 +423,7 @@
 
       <div class="wifi-card" data-key="mrt" data-speak="捷運或政府機關。第一步，連線 TPE-Free 或 iTaiwan。第二步，勾選同意。第三步，點連線。不限次數，每次三十分鐘，斷線可以無限次重新連線，站內通常有免費充電座。">
         <div class="wifi-card-head">
-          <div class="wifi-icon brand-mrt">🚇</div>
+          <div class="wifi-icon"><img src="logos/mrt.png" alt="捷運"></div>
           <div>
             <div class="wifi-name">捷運站・政府機關</div>
             <div class="wifi-ssid">連線名稱：TPE-Free 或 iTaiwan</div>
@@ -440,7 +441,7 @@
 
       <div class="wifi-card" data-key="seven11" data-speak="7-11 超商。第一步，連線 7-ELEVEN-WiFi。第二步，帳號密碼會自動幫你填好。第三步，直接點登入。志工已經幫你設定好帳號，每次三十分鐘，一天可以用三次。">
         <div class="wifi-card-head">
-          <div class="wifi-icon brand-seven">🏬</div>
+          <div class="wifi-icon"><img src="logos/seven11.png" alt="7-11"></div>
           <div>
             <div class="wifi-name">7-11 超商</div>
             <div class="wifi-ssid">連線名稱：7-ELEVEN-WiFi</div>
@@ -458,7 +459,7 @@
 
       <div class="wifi-card" data-key="mcdonalds" data-speak="麥當勞，備用避雨點。第一步，連線 McDonalds_WiFi。第二步，點同意並開始上網。">
         <div class="wifi-card-head">
-          <div class="wifi-icon brand-mcd">🍟</div>
+          <div class="wifi-icon"><img src="logos/mcdonalds.png" alt="麥當勞"></div>
           <div>
             <div class="wifi-name">麥當勞</div>
             <div class="wifi-ssid">連線名稱：McDonalds_WiFi</div>
@@ -797,27 +798,6 @@ if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   });
 }
-
-/* =========================================================
-   今日使用次數（用免費計數服務 CountAPI，不記錄任何個資，
-   只是把「打開這個網頁」這件事累加一次）。
-   NAMESPACE 是這個網站專用的識別碼，避免跟別人的計數器搞混，
-   志工不需要修改這裡。
-   ========================================================= */
-(function(){
-  const NAMESPACE = "homeless-wifi-pwa-taipei-kima0730";
-  const today = new Date();
-  const dateKey = today.getFullYear() + "-" + String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
-  const el = document.getElementById("usageCounter");
-  fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${dateKey}`)
-    .then(r => r.json())
-    .then(data => {
-      if (el && data && typeof data.value === "number"){
-        el.textContent = `📊 今日已使用 ${data.value} 次`;
-      }
-    })
-    .catch(()=>{ /* 離線或服務打不開時，安靜略過，不影響其他功能 */ });
-})();
 
 </script>
 </body>
