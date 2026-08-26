@@ -570,7 +570,7 @@ const RESOURCES = [
    2. 檔案 → 共用 → 發布到網路 → 選這張工作表、格式選 CSV → 複製連結
    3. 把連結貼到下面 GOOGLE_SHEET_CSV_URL 這行的引號中間即可，其餘不用改
    ========================================================= */
-const GOOGLE_SHEET_CSV_URL = ""; // 例如 "https://docs.google.com/spreadsheets/d/xxxx/pub?output=csv"
+const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4LqmDOLZTRz5NAklX2VLui_uRFU6XMHvQvCN_hhRLKtsWOh6aoOJtjyGHRdR6V4abhIImdsAou1D2/pub?output=csv";
 
 function parseCSV(text){
   return text.trim().split(/\r?\n/).map(line=>{
