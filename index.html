@@ -236,6 +236,28 @@
     font-weight:800;
     text-decoration:none;
   }
+  .gps-status{
+    font-size:13px;
+    color:var(--text-muted);
+    margin-bottom:10px;
+    padding:8px 10px;
+    background:var(--bg);
+    border-radius:10px;
+  }
+  .gps-status.located{color:#8EA8F5;}
+  .gps-status.denied{color:var(--text-muted);}
+  #gpsDotTaipei circle:first-child,
+  #gpsDotWanhua circle:first-child,
+  #gpsDot228 circle:first-child{
+    animation:pulse 2.2s ease-out infinite;
+    transform-origin:center;
+    transform-box:fill-box;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #gpsDotTaipei circle:first-child,
+    #gpsDotWanhua circle:first-child,
+    #gpsDot228 circle:first-child{ animation:none; }
+  }
   .map-legend{
     display:flex; flex-wrap:wrap; gap:10px;
     margin-top:12px;
@@ -501,32 +523,57 @@
       </div>
 
       <div class="map-frame active" id="map-taipei">
-        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="340" height="300" rx="12" fill="#0F1B2C"/>
-          <rect x="120" y="110" width="100" height="70" rx="8" fill="#1D3050" stroke="#2A3E5C"/>
-          <text x="170" y="150" text-anchor="middle" fill="#F5F3ED" font-size="15" font-weight="700">台北車站</text>
-          <line x1="170" y1="0" x2="170" y2="300" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
-          <line x1="0" y1="150" x2="340" y2="150" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
-          <circle cx="70" cy="70" r="10" fill="#4FD1AE"/>
-          <text x="70" y="55" text-anchor="middle" fill="#4FD1AE" font-size="13" font-weight="700">全家</text>
-          <circle cx="260" cy="90" r="10" fill="#FFC857"/>
-          <text x="260" y="75" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">充電座</text>
-          <circle cx="80" cy="230" r="10" fill="#4FD1AE"/>
-          <text x="80" y="250" text-anchor="middle" fill="#4FD1AE" font-size="13" font-weight="700">7-11</text>
-          <circle cx="250" cy="230" r="10" fill="#3E6FE0"/>
-          <text x="250" y="250" text-anchor="middle" fill="#8EA8F5" font-size="13" font-weight="700">iTaiwan</text>
-          <circle cx="170" cy="40" r="9" fill="#FF6B4A"/>
-          <text x="170" y="26" text-anchor="middle" fill="#FF6B4A" font-size="12.5" font-weight="700">公用電話</text>
+        <div class="gps-status" id="gpsStatusTaipei">📍 正在嘗試定位…（需要允許定位權限，不需要網路）</div>
+        <svg viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg" id="svgTaipei">
+          <rect x="0" y="0" width="340" height="340" rx="12" fill="#0F1B2C"/>
+          <!-- 忠孝西路（南側） -->
+          <line x1="0" y1="230" x2="340" y2="230" stroke="#3A4E6C" stroke-width="5"/>
+          <text x="8" y="222" fill="#7C8DA6" font-size="11" font-weight="700">忠孝西路</text>
+          <!-- 市民大道（北側） -->
+          <line x1="0" y1="55" x2="340" y2="55" stroke="#3A4E6C" stroke-width="5"/>
+          <text x="8" y="47" fill="#7C8DA6" font-size="11" font-weight="700">市民大道</text>
+          <!-- 承德路（西側） -->
+          <line x1="60" y1="0" x2="60" y2="340" stroke="#3A4E6C" stroke-width="5"/>
+          <text x="20" y="330" fill="#7C8DA6" font-size="11" font-weight="700" transform="rotate(0)">承德路</text>
+          <!-- 中山南路（東側） -->
+          <line x1="290" y1="0" x2="290" y2="340" stroke="#3A4E6C" stroke-width="5"/>
+          <text x="295" y="330" fill="#7C8DA6" font-size="11" font-weight="700">中山南路</text>
+          <!-- 館前路（往南通二二八公園方向） -->
+          <line x1="185" y1="230" x2="185" y2="340" stroke="#2A3E5C" stroke-width="4" stroke-dasharray="3 4"/>
+          <text x="192" y="325" fill="#5A6A88" font-size="10">館前路</text>
+          <text x="192" y="337" fill="#5A6A88" font-size="9">↓往二二八公園</text>
+
+          <!-- 車站主體 -->
+          <rect x="130" y="105" width="90" height="90" rx="8" fill="#1D3050" stroke="#4FD1AE" stroke-width="1.5"/>
+          <text x="175" y="145" text-anchor="middle" fill="#F5F3ED" font-size="14" font-weight="700">台北車站</text>
+          <text x="175" y="162" text-anchor="middle" fill="#7C8DA6" font-size="9">北平西路3號</text>
+
+          <!-- 資源標點（示意位置） -->
+          <circle cx="95" cy="80" r="9" fill="#4FD1AE"/>
+          <text x="95" y="66" text-anchor="middle" fill="#4FD1AE" font-size="12" font-weight="700">全家</text>
+          <circle cx="255" cy="80" r="9" fill="#FFC857"/>
+          <text x="255" y="66" text-anchor="middle" fill="#FFC857" font-size="12" font-weight="700">充電座</text>
+          <circle cx="95" cy="205" r="9" fill="#4FD1AE"/>
+          <text x="95" y="221" text-anchor="middle" fill="#4FD1AE" font-size="12" font-weight="700">7-11</text>
+          <circle cx="255" cy="205" r="9" fill="#3E6FE0"/>
+          <text x="255" y="221" text-anchor="middle" fill="#8EA8F5" font-size="12" font-weight="700">iTaiwan</text>
+
+          <!-- GPS 定位藍點（JS 動態控制顯示與位置） -->
+          <g id="gpsDotTaipei" style="display:none;">
+            <circle cx="170" cy="170" r="16" fill="#3E6FE0" opacity="0.25"/>
+            <circle cx="170" cy="170" r="7" fill="#3E6FE0" stroke="#0F1B2C" stroke-width="2"/>
+          </g>
         </svg>
         <div class="map-legend">
           <span class="legend-item"><span class="legend-dot" style="background:#4FD1AE"></span>免費 Wi-Fi</span>
           <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>充電座</span>
           <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#FF6B4A"></span>公用電話</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0;box-shadow:0 0 0 2px #16263D"></span>你的位置</span>
         </div>
-        <div class="map-disclaimer">ℹ️ 示意方位圖，實際店家位置以現場為準。</div>
+        <div class="map-disclaimer">ℹ️ 已依真實街道比例繪製，藍點為即時定位（離線也能用衛星定位，但需先允許定位權限）。店家標點仍為示意，實際請以現場路標為準。</div>
         <a class="map-nav-btn" href="https://www.google.com/maps/search/?api=1&query=%E5%8F%B0%E5%8C%97%E8%BB%8A%E7%AB%99" target="_blank" rel="noopener">🧭 有網路的話，點這裡開 Google 地圖導航</a>
       </div>
+
 
       <div class="map-frame" id="map-wanhua">
         <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
@@ -742,7 +789,109 @@ document.querySelectorAll(".map-tab").forEach(tab=>{
     tab.classList.add("active");
     document.querySelectorAll(".map-frame").forEach(f=>f.classList.remove("active"));
     document.getElementById("map-"+tab.dataset.map).classList.add("active");
+    updateGpsWatch();
   });
+});
+
+/* =========================================================
+   GPS 真實定位藍點（台北車站區域，示範版）
+   原理：把手機回傳的經緯度，換算成跟地圖圖上同比例的座標，
+   畫在對應位置。定位本身靠衛星，不需要網路；
+   只有在使用者切到「地圖」分頁、且選到有支援的區域時才會啟動，
+   離開時自動停止，節省電量。
+   ========================================================= */
+const MAP_CONFIGS = {
+  taipei: {
+    ref: { lat: 25.0475613, lng: 121.5173399 }, // 台北車站
+    originX: 175, originY: 150,   // 對應車站在圖上的位置
+    scale: 0.62,                   // 每公尺對應的圖上單位（決定地圖顯示範圍）
+    dotId: "gpsDotTaipei",
+    statusId: "gpsStatusTaipei",
+    viewSize: 340
+  }
+  // 之後要幫萬華龍山寺、二二八公園也加上真實定位，
+  // 只要比照這個格式，各自加一組設定（含真實經緯度）即可。
+};
+
+let currentWatchId = null;
+let currentWatchArea = null;
+
+function latLngToMapXY(lat, lng, cfg){
+  const dxMeters = (lng - cfg.ref.lng) * 111320 * Math.cos(cfg.ref.lat * Math.PI / 180);
+  const dySouthMeters = (cfg.ref.lat - lat) * 110540; // 越往南數值越大，符合 SVG y 軸方向
+  return {
+    x: cfg.originX + dxMeters * cfg.scale,
+    y: cfg.originY + dySouthMeters * cfg.scale
+  };
+}
+
+function setGpsStatus(cfg, text, cls){
+  const el = document.getElementById(cfg.statusId);
+  if (!el) return;
+  el.textContent = text;
+  el.className = "gps-status" + (cls ? " " + cls : "");
+}
+
+function startWatch(areaKey){
+  const cfg = MAP_CONFIGS[areaKey];
+  if (!cfg) return; // 這個區域還沒有真實座標資料，不啟動
+  if (!("geolocation" in navigator)){
+    setGpsStatus(cfg, "📍 這台裝置不支援定位功能", "denied");
+    return;
+  }
+  currentWatchId = navigator.geolocation.watchPosition(
+    (pos) => {
+      const cfg2 = MAP_CONFIGS[areaKey];
+      const { x, y } = latLngToMapXY(pos.coords.latitude, pos.coords.longitude, cfg2);
+      const dot = document.getElementById(cfg2.dotId);
+      const pad = 14;
+      const clampedX = Math.min(Math.max(x, pad), cfg2.viewSize - pad);
+      const clampedY = Math.min(Math.max(y, pad), cfg2.viewSize - pad);
+      if (dot){
+        dot.setAttribute("transform", `translate(${clampedX - 170}, ${clampedY - 170})`);
+        dot.style.display = "block";
+      }
+      const outOfView = (x < pad || x > cfg2.viewSize - pad || y < pad || y > cfg2.viewSize - pad);
+      setGpsStatus(cfg2, outOfView ? "📍 你目前的位置在這張圖範圍外，藍點顯示大概方向" : "📍 藍點是你目前的位置", "located");
+    },
+    (err) => {
+      const cfg2 = MAP_CONFIGS[areaKey];
+      if (err.code === err.PERMISSION_DENIED){
+        setGpsStatus(cfg2, "📍 未取得定位權限，仍可查看地圖示意位置", "denied");
+      } else {
+        setGpsStatus(cfg2, "📍 目前無法定位（例如室內收不到衛星訊號），仍可查看地圖示意位置", "denied");
+      }
+    },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+  );
+  currentWatchArea = areaKey;
+}
+
+function stopWatch(){
+  if (currentWatchId !== null && "geolocation" in navigator){
+    navigator.geolocation.clearWatch(currentWatchId);
+  }
+  currentWatchId = null;
+  currentWatchArea = null;
+}
+
+function updateGpsWatch(){
+  const onMapTab = document.getElementById("panel-map").classList.contains("active");
+  const activeTab = document.querySelector(".map-tab.active");
+  const areaKey = activeTab ? activeTab.dataset.map : null;
+  if (!onMapTab || !MAP_CONFIGS[areaKey]){
+    stopWatch();
+    return;
+  }
+  if (currentWatchArea !== areaKey){
+    stopWatch();
+    startWatch(areaKey);
+  }
+}
+
+// 底部導覽切到「地圖」分頁時，也要重新檢查是否該啟動定位
+navBtns.forEach(btn=>{
+  btn.addEventListener("click", updateGpsWatch);
 });
 
 /* ---------- 「我已經連上了」確認按鈕（本機記住，重開網頁還記得） ---------- */
