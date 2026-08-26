@@ -315,6 +315,42 @@
   }
   .install-banner.show{display:block;}
   .install-banner b{color:var(--teal);}
+
+  .usage-counter{
+    margin:0 18px 18px;
+    font-size:13px;
+    color:var(--text-muted);
+    text-align:center;
+  }
+
+  /* ---------- Wi-Fi 分頁上方的圖示教學（一次性，適用所有卡片） ---------- */
+  .howto-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 12px;
+    margin:0 4px 20px;
+  }
+  .howto-step{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    flex:1;
+    min-width:0;
+  }
+  .howto-icon{font-size:28px;}
+  .howto-label{
+    font-size:12.5px;
+    color:var(--text-muted);
+    text-align:center;
+    line-height:1.4;
+  }
+  .howto-arrow{color:var(--line); font-size:18px; flex:none; padding-bottom:20px;}
 </style>
 </head>
 <body class="is-offline">
@@ -336,11 +372,35 @@
     瀏覽器選單 → 「加到主畫面」或「安裝應用程式」。
   </div>
 
+  <div class="usage-counter" id="usageCounter"></div>
+
   <main>
 
     <!-- ============ 上網 ============ -->
     <section class="tab-panel active" id="panel-wifi">
-      <p class="section-lead">照著卡片上的順序點就好，每個地方都不用輸入密碼。</p>
+      <div class="howto-strip">
+        <div class="howto-step">
+          <div class="howto-icon">⚙️</div>
+          <div class="howto-label">打開手機<br>「設定」</div>
+        </div>
+        <div class="howto-arrow">›</div>
+        <div class="howto-step">
+          <div class="howto-icon">📶</div>
+          <div class="howto-label">點<br>「Wi-Fi」</div>
+        </div>
+        <div class="howto-arrow">›</div>
+        <div class="howto-step">
+          <div class="howto-icon">👇</div>
+          <div class="howto-label">找卡片上<br>寫的名字</div>
+        </div>
+        <div class="howto-arrow">›</div>
+        <div class="howto-step">
+          <div class="howto-icon">✅</div>
+          <div class="howto-label">點它<br>連上去</div>
+        </div>
+      </div>
+      <p class="section-lead">連上後照著卡片上的順序點就好，每個地方都不用輸入密碼。</p>
+
 
       <div class="wifi-card" data-key="familymart" data-speak="全家 Fami-WiFi。第一步，連線 Family-WiFi。第二步，勾選同意。第三步，點開始上網。免個資，每次三十分鐘，一天可以用三次。">
         <div class="wifi-card-head">
@@ -737,6 +797,28 @@ if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   });
 }
+
+/* =========================================================
+   今日使用次數（用免費計數服務 CountAPI，不記錄任何個資，
+   只是把「打開這個網頁」這件事累加一次）。
+   NAMESPACE 是這個網站專用的識別碼，避免跟別人的計數器搞混，
+   志工不需要修改這裡。
+   ========================================================= */
+(function(){
+  const NAMESPACE = "homeless-wifi-pwa-taipei-kima0730";
+  const today = new Date();
+  const dateKey = today.getFullYear() + "-" + String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
+  const el = document.getElementById("usageCounter");
+  fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${dateKey}`)
+    .then(r => r.json())
+    .then(data => {
+      if (el && data && typeof data.value === "number"){
+        el.textContent = `📊 今日已使用 ${data.value} 次`;
+      }
+    })
+    .catch(()=>{ /* 離線或服務打不開時，安靜略過，不影響其他功能 */ });
+})();
+
 </script>
 </body>
 </html>
