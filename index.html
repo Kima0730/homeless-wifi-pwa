@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1B2C">
+<meta name="description" content="離線也能用：免費 Wi-Fi 連線步驟、簡易地圖與緊急求助電話">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>找網路・找幫助</title>
+<style>
+  :root{
+    --bg:#0F1B2C;
+    --surface:#16263D;
+    --surface-2:#1D3050;
+    --line:#2A3E5C;
+    --text:#F5F3ED;
+    --text-muted:#9FB0C7;
+    --teal:#4FD1AE;
+    --teal-dim:#1F4A42;
+    --amber:#FFC857;
+    --amber-dim:#4A3B18;
+    --coral:#FF6B4A;
+    --coral-dim:#4A2418;
+    --radius:18px;
+    --tap:64px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior-y:contain;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+
+  /* ---------- 狀態列（訊號脈動：本設計的視覺主軸） ---------- */
+  .statusbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 18px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .pulse-wrap{position:relative; width:16px; height:16px; flex:none;}
+  .pulse-dot{
+    width:16px; height:16px; border-radius:50%;
+    background:var(--teal);
+    position:relative; z-index:2;
+  }
+  .pulse-ring{
+    position:absolute; inset:0; border-radius:50%;
+    border:2px solid var(--teal);
+    animation:pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1); opacity:.9;}
+    100%{transform:scale(2.6); opacity:0;}
+  }
+  body.is-offline .pulse-dot{background:var(--text-muted);}
+  body.is-offline .pulse-ring{display:none;}
+  .status-text{font-size:15px; font-weight:700; letter-spacing:.02em;}
+  .status-sub{font-size:12.5px; color:var(--text-muted); margin-top:1px;}
+  @media (prefers-reduced-motion: reduce){
+    .pulse-ring{animation:none;}
+  }
+
+  h1{
+    font-size:26px;
+    font-weight:900;
+    letter-spacing:.01em;
+    margin:20px 18px 4px;
+  }
+  .subtitle{
+    margin:0 18px 18px;
+    color:var(--text-muted);
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  main{flex:1; padding-bottom:110px;}
+  section.tab-panel{display:none; padding:0 16px 8px;}
+  section.tab-panel.active{display:block;}
+
+  .section-lead{
+    font-size:17px;
+    color:var(--text-muted);
+    margin:6px 4px 18px;
+    line-height:1.7;
+  }
+
+  /* ---------- Wi-Fi 卡片 ---------- */
+  .wifi-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .wifi-card-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .wifi-icon{
+    width:52px; height:52px;
+    border-radius:14px;
+    background:var(--teal-dim);
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px;
+    flex:none;
+  }
+  .wifi-name{font-size:21px; font-weight:800; line-height:1.3;}
+  .wifi-ssid{font-size:14.5px; color:var(--teal); font-weight:700; margin-top:2px;}
+  .steps{list-style:none; margin:14px 0; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .step{display:flex; align-items:flex-start; gap:12px;}
+  .step-num{
+    flex:none;
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--teal);
+    color:#0B1A17;
+    font-weight:900;
+    font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-text{font-size:18px; line-height:1.5; padding-top:3px;}
+  .wifi-note{
+    display:flex; align-items:center; gap:8px;
+    font-size:14px; color:var(--text-muted);
+    background:var(--bg);
+    border-radius:12px;
+    padding:10px 12px;
+    margin-top:6px;
+  }
+  .speak-btn{
+    margin-top:14px;
+    width:100%;
+    min-height:52px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text);
+    font-size:16px;
+    font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .speak-btn:active{background:var(--surface-2);}
+
+  /* ---------- 地圖分區 ---------- */
+  .map-tabs{
+    display:flex; gap:8px; margin:6px 4px 16px;
+    overflow-x:auto;
+  }
+  .map-tab{
+    flex:none;
+    padding:12px 18px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--text-muted);
+    font-size:15.5px;
+    font-weight:700;
+  }
+  .map-tab.active{
+    background:var(--amber-dim);
+    border-color:var(--amber);
+    color:var(--amber);
+  }
+  .map-frame{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px;
+    display:none;
+  }
+  .map-frame.active{display:block;}
+  .map-frame svg{width:100%; height:auto; display:block; border-radius:12px;}
+  .map-frame svg text{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;}
+  .map-disclaimer{
+    font-size:13px; color:var(--text-muted);
+    margin-top:10px; line-height:1.6;
+    display:flex; gap:8px; align-items:flex-start;
+  }
+  .map-legend{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-top:12px;
+  }
+  .legend-item{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--text-muted);}
+  .legend-dot{width:12px; height:12px; border-radius:50%; flex:none;}
+
+  /* ---------- 緊急求助 ---------- */
+  .sos-warning{
+    background:var(--coral-dim);
+    border:1px solid var(--coral);
+    color:var(--text);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:14.5px;
+    line-height:1.7;
+    margin-bottom:18px;
+  }
+  .sos-btn{
+    display:flex; align-items:center; gap:16px;
+    width:100%;
+    min-height:84px;
+    border-radius:var(--radius);
+    border:none;
+    padding:16px 20px;
+    margin-bottom:14px;
+    text-decoration:none;
+    color:#fff;
+  }
+  .sos-btn .sos-icon{font-size:34px; flex:none;}
+  .sos-btn .sos-body{text-align:left;}
+  .sos-btn .sos-num{font-size:28px; font-weight:900; line-height:1;}
+  .sos-btn .sos-label{font-size:14.5px; margin-top:4px; opacity:.9;}
+  .sos-1957{background:linear-gradient(135deg,#2E9E82,#1F7A64);}
+  .sos-119{background:linear-gradient(135deg,#FF6B4A,#D8492C);}
+  .sos-110{background:linear-gradient(135deg,#3E6FE0,#2A4FB0);}
+
+  /* ---------- 在地資源（志工可編輯） ---------- */
+  .res-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:14px;
+  }
+  .res-head{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+  .res-icon{font-size:26px;}
+  .res-title{font-size:19px; font-weight:800;}
+  .res-item{font-size:16px; line-height:1.7; color:var(--text); margin:4px 0;}
+  .res-empty{color:var(--text-muted); font-size:15px; line-height:1.7;}
+
+  /* ---------- 底部導覽 ---------- */
+  nav.bottom-nav{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    display:flex;
+    background:var(--surface);
+    border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+    max-width:520px;
+    margin:0 auto;
+    z-index:30;
+  }
+  .nav-btn{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:10px 4px 8px;
+    background:none; border:none;
+    color:var(--text-muted);
+    font-size:12.5px;
+    font-weight:700;
+    min-height:var(--tap);
+  }
+  .nav-btn .nav-icon{font-size:24px;}
+  .nav-btn.active{color:var(--teal);}
+  .nav-btn.active.nav-sos{color:var(--coral);}
+
+  .install-banner{
+    display:none;
+    margin:0 16px 16px;
+    background:var(--surface-2);
+    border:1px solid var(--teal);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  .install-banner.show{display:block;}
+  .install-banner b{color:var(--teal);}
+</style>
+</head>
+<body class="is-offline">
+<div class="app">
+
+  <div class="statusbar">
+    <div class="pulse-wrap"><div class="pulse-ring"></div><div class="pulse-dot"></div></div>
+    <div>
+      <div class="status-text" id="statusText">正在確認網路狀態…</div>
+      <div class="status-sub" id="statusSub">資料已存在手機裡，離線也能看</div>
+    </div>
+  </div>
+
+  <h1>找網路・找幫助</h1>
+  <p class="subtitle">這個網頁存在你的手機裡，就算完全沒有網路，也可以打開來看。</p>
+
+  <div class="install-banner" id="installBanner">
+    📲 <b>把這個網頁加到主畫面</b>，之後就算沒有網路也能像 App 一樣秒開。<br>
+    瀏覽器選單 → 「加到主畫面」或「安裝應用程式」。
+  </div>
+
+  <main>
+
+    <!-- ============ 上網 ============ -->
+    <section class="tab-panel active" id="panel-wifi">
+      <p class="section-lead">照著卡片上的順序點就好，每個地方都不用輸入密碼。</p>
+
+      <div class="wifi-card" data-speak="全家 Fami-WiFi。第一步，連線 Family-WiFi。第二步，勾選同意。第三步，點開始上網。免個資，每次三十分鐘，一天可以用三次。">
+        <div class="wifi-card-head">
+          <div class="wifi-icon">🏪</div>
+          <div>
+            <div class="wifi-name">全家超商</div>
+            <div class="wifi-ssid">連線名稱：Family-WiFi</div>
+          </div>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="step-num">1</span><span class="step-text">連線「Family-WiFi」</span></li>
+          <li class="step"><span class="step-num">2</span><span class="step-text">勾選「我同意」</span></li>
+          <li class="step"><span class="step-num">3</span><span class="step-text">點「開始上網」</span></li>
+        </ol>
+        <div class="wifi-note">🕒 免個資、免填資料 · 每次30分鐘 · 一天最多3次</div>
+        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+      </div>
+
+      <div class="wifi-card" data-speak="捷運或政府機關。第一步，連線 TPE-Free 或 iTaiwan。第二步，勾選同意。第三步，點連線。不限次數，每次三十分鐘，斷線可以無限次重新連線，站內通常有免費充電座。">
+        <div class="wifi-card-head">
+          <div class="wifi-icon">🚇</div>
+          <div>
+            <div class="wifi-name">捷運站・政府機關</div>
+            <div class="wifi-ssid">連線名稱：TPE-Free 或 iTaiwan</div>
+          </div>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="step-num">1</span><span class="step-text">連線「TPE-Free」或「iTaiwan」</span></li>
+          <li class="step"><span class="step-num">2</span><span class="step-text">勾選「我同意」</span></li>
+          <li class="step"><span class="step-num">3</span><span class="step-text">點「連線」</span></li>
+        </ol>
+        <div class="wifi-note">🔌 不限次數 · 每次30分鐘，斷線可再連 · 站內通常有充電座</div>
+        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+      </div>
+
+      <div class="wifi-card" data-speak="7-11 超商。第一步，連線 7-ELEVEN-WiFi。第二步，帳號密碼會自動幫你填好。第三步，直接點登入。志工已經幫你設定好帳號，每次三十分鐘，一天可以用三次。">
+        <div class="wifi-card-head">
+          <div class="wifi-icon">🏬</div>
+          <div>
+            <div class="wifi-name">7-11 超商</div>
+            <div class="wifi-ssid">連線名稱：7-ELEVEN-WiFi</div>
+          </div>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="step-num">1</span><span class="step-text">連線「7-ELEVEN-WiFi」</span></li>
+          <li class="step"><span class="step-num">2</span><span class="step-text">帳號密碼會自動填好</span></li>
+          <li class="step"><span class="step-num">3</span><span class="step-text">直接點「登入」</span></li>
+        </ol>
+        <div class="wifi-note">✅ 志工已幫你設定好帳號 · 每次30分鐘 · 一天最多3次</div>
+        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+      </div>
+
+      <div class="wifi-card" data-speak="麥當勞，備用避雨點。第一步，連線 McDonalds_WiFi。第二步，點同意並開始上網。">
+        <div class="wifi-card-head">
+          <div class="wifi-icon">🍟</div>
+          <div>
+            <div class="wifi-name">麥當勞</div>
+            <div class="wifi-ssid">連線名稱：McDonalds_WiFi</div>
+          </div>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="step-num">1</span><span class="step-text">連線「McDonalds_WiFi」</span></li>
+          <li class="step"><span class="step-num">2</span><span class="step-text">點「同意並開始上網」</span></li>
+        </ol>
+        <div class="wifi-note">☔ 備用避雨點</div>
+        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
+      </div>
+    </section>
+
+    <!-- ============ 地圖 ============ -->
+    <section class="tab-panel" id="panel-map">
+      <p class="section-lead">選一區看簡易地圖。這是示意圖，不是精確地圖，實際位置請以現場路標為準。</p>
+      <div class="map-tabs" id="mapTabs">
+        <button class="map-tab active" data-map="taipei">台北車站</button>
+        <button class="map-tab" data-map="wanhua">萬華龍山寺</button>
+        <button class="map-tab" data-map="228">二二八公園</button>
+      </div>
+
+      <div class="map-frame active" id="map-taipei">
+        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="340" height="300" rx="12" fill="#0F1B2C"/>
+          <rect x="120" y="110" width="100" height="70" rx="8" fill="#1D3050" stroke="#2A3E5C"/>
+          <text x="170" y="150" text-anchor="middle" fill="#F5F3ED" font-size="15" font-weight="700">台北車站</text>
+          <line x1="170" y1="0" x2="170" y2="300" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
+          <line x1="0" y1="150" x2="340" y2="150" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
+          <circle cx="70" cy="70" r="10" fill="#4FD1AE"/>
+          <text x="70" y="55" text-anchor="middle" fill="#4FD1AE" font-size="13" font-weight="700">全家</text>
+          <circle cx="260" cy="90" r="10" fill="#FFC857"/>
+          <text x="260" y="75" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">充電座</text>
+          <circle cx="80" cy="230" r="10" fill="#4FD1AE"/>
+          <text x="80" y="250" text-anchor="middle" fill="#4FD1AE" font-size="13" font-weight="700">7-11</text>
+          <circle cx="250" cy="230" r="10" fill="#3E6FE0"/>
+          <text x="250" y="250" text-anchor="middle" fill="#8EA8F5" font-size="13" font-weight="700">iTaiwan</text>
+          <circle cx="170" cy="40" r="9" fill="#FF6B4A"/>
+          <text x="170" y="26" text-anchor="middle" fill="#FF6B4A" font-size="12.5" font-weight="700">公用電話</text>
+        </svg>
+        <div class="map-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#4FD1AE"></span>免費 Wi-Fi</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>充電座</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#FF6B4A"></span>公用電話</span>
+        </div>
+        <div class="map-disclaimer">ℹ️ 示意方位圖，實際店家位置以現場為準。</div>
+      </div>
+
+      <div class="map-frame" id="map-wanhua">
+        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="340" height="300" rx="12" fill="#0F1B2C"/>
+          <rect x="120" y="110" width="100" height="70" rx="8" fill="#1D3050" stroke="#2A3E5C"/>
+          <text x="170" y="150" text-anchor="middle" fill="#F5F3ED" font-size="15" font-weight="700">龍山寺</text>
+          <line x1="170" y1="0" x2="170" y2="300" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
+          <line x1="0" y1="150" x2="340" y2="150" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
+          <circle cx="70" cy="90" r="10" fill="#3E6FE0"/>
+          <text x="70" y="75" text-anchor="middle" fill="#8EA8F5" font-size="13" font-weight="700">捷運站</text>
+          <circle cx="260" cy="80" r="10" fill="#4FD1AE"/>
+          <text x="260" y="65" text-anchor="middle" fill="#4FD1AE" font-size="13" font-weight="700">全家</text>
+          <circle cx="90" cy="230" r="10" fill="#FFC857"/>
+          <text x="90" y="250" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">公園座椅</text>
+          <circle cx="250" cy="225" r="10" fill="#FF6B4A"/>
+          <text x="250" y="245" text-anchor="middle" fill="#FF6B4A" font-size="13" font-weight="700">公用電話</text>
+        </svg>
+        <div class="map-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#4FD1AE"></span>免費 Wi-Fi</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>可休息座椅</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#FF6B4A"></span>公用電話</span>
+        </div>
+        <div class="map-disclaimer">ℹ️ 示意方位圖，實際店家位置以現場為準。</div>
+      </div>
+
+      <div class="map-frame" id="map-228">
+        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="340" height="300" rx="12" fill="#0F1B2C"/>
+          <rect x="110" y="100" width="120" height="90" rx="8" fill="#1D3050" stroke="#2A3E5C"/>
+          <text x="170" y="150" text-anchor="middle" fill="#F5F3ED" font-size="15" font-weight="700">二二八公園</text>
+          <line x1="170" y1="0" x2="170" y2="300" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
+          <line x1="0" y1="150" x2="340" y2="150" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
+          <circle cx="80" cy="70" r="10" fill="#3E6FE0"/>
+          <text x="80" y="55" text-anchor="middle" fill="#8EA8F5" font-size="13" font-weight="700">捷運站</text>
+          <circle cx="250" cy="70" r="10" fill="#FFC857"/>
+          <text x="250" y="55" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">充電座</text>
+          <circle cx="90" cy="235" r="10" fill="#FFC857"/>
+          <text x="90" y="255" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">公園座椅</text>
+          <circle cx="250" cy="230" r="10" fill="#FF6B4A"/>
+          <text x="250" y="250" text-anchor="middle" fill="#FF6B4A" font-size="13" font-weight="700">公用電話</text>
+        </svg>
+        <div class="map-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>充電座 / 座椅</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#FF6B4A"></span>公用電話</span>
+        </div>
+        <div class="map-disclaimer">ℹ️ 示意方位圖，實際店家位置以現場為準。</div>
+      </div>
+    </section>
+
+    <!-- ============ 求助 ============ -->
+    <section class="tab-panel" id="panel-sos">
+      <div class="sos-warning">
+        ⚠️ 這些電話需要手機「還有門號、還有通話訊號」才能打通，光靠 Wi-Fi 是打不出去的。
+        如果手機沒有門號，可以請商店店員幫忙用店裡電話撥打。
+      </div>
+
+      <a class="sos-btn sos-1957" href="tel:1957">
+        <span class="sos-icon">☎️</span>
+        <span class="sos-body">
+          <span class="sos-num">1957</span>
+          <span class="sos-label">福利諮詢專線・免付費・24小時（急難救助、安置、外宿協助）</span>
+        </span>
+      </a>
+
+      <a class="sos-btn sos-119" href="tel:119">
+        <span class="sos-icon">🚑</span>
+        <span class="sos-body">
+          <span class="sos-num">119</span>
+          <span class="sos-label">救護車・火災</span>
+        </span>
+      </a>
+
+      <a class="sos-btn sos-110" href="tel:110">
+        <span class="sos-icon">🚓</span>
+        <span class="sos-body">
+          <span class="sos-num">110</span>
+          <span class="sos-label">報警</span>
+        </span>
+      </a>
+    </section>
+
+    <!-- ============ 在地資源（志工可自行編輯下方 RESOURCES 陣列） ============ -->
+    <section class="tab-panel" id="panel-res">
+      <p class="section-lead">在地收容、供餐、盥洗資訊，由志工依當地實際狀況填寫更新。</p>
+      <div id="resList"></div>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="wifi"><span class="nav-icon">📶</span>上網</button>
+    <button class="nav-btn" data-tab="map"><span class="nav-icon">🗺️</span>地圖</button>
+    <button class="nav-btn" data-tab="res"><span class="nav-icon">📍</span>在地資源</button>
+    <button class="nav-btn nav-sos" data-tab="sos"><span class="nav-icon">🆘</span>求助</button>
+  </nav>
+</div>
+
+<script>
+/* =========================================================
+   志工編輯區：在地資源
+   直接修改下面這個陣列即可新增/修改資源，不用動其他程式碼。
+   type 決定圖示： shelter=🛏 收容避寒 / food=🍚 供餐 / wash=🚿 盥洗如廁
+   ========================================================= */
+const RESOURCES = [
+  // 範例（請刪除並換成當地志工確認過的真實資訊）：
+  // { type:"shelter", title:"XX 區臨時收容所", items:["地址：____","開放時間：____","電話：____"] },
+  // { type:"food", title:"XX 教會供餐", items:["時間：每週三 17:00","地點：____"] },
+  // { type:"wash", title:"XX 公共盥洗室", items:["地點：____","開放時間：____"] },
+];
+
+const RES_META = {
+  shelter:{icon:"🛏", label:"收容・避寒"},
+  food:{icon:"🍚", label:"供餐資訊"},
+  wash:{icon:"🚿", label:"盥洗・如廁"}
+};
+
+function renderResources(){
+  const list = document.getElementById("resList");
+  if (RESOURCES.length === 0){
+    list.innerHTML = `<div class="res-card">
+      <div class="res-head"><span class="res-icon">📍</span><span class="res-title">尚未填寫在地資源</span></div>
+      <div class="res-empty">志工可以打開 index.html，在 RESOURCES 陣列裡加入當地收容所、供餐、盥洗地點的資訊。</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = RESOURCES.map(r => {
+    const meta = RES_META[r.type] || {icon:"📍", label:"資源"};
+    return `<div class="res-card">
+      <div class="res-head"><span class="res-icon">${meta.icon}</span><span class="res-title">${r.title}</span></div>
+      ${r.items.map(i => `<div class="res-item">${i}</div>`).join("")}
+    </div>`;
+  }).join("");
+}
+renderResources();
+
+/* ---------- 底部導覽切換 ---------- */
+const navBtns = document.querySelectorAll(".nav-btn");
+navBtns.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    navBtns.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+    window.scrollTo({top:0, behavior:"instant"});
+  });
+});
+
+/* ---------- 地圖分頁切換 ---------- */
+document.querySelectorAll(".map-tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".map-tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    document.querySelectorAll(".map-frame").forEach(f=>f.classList.remove("active"));
+    document.getElementById("map-"+tab.dataset.map).classList.add("active");
+  });
+});
+
+/* ---------- 語音朗讀（給不識字或視力不好的使用者） ---------- */
+document.querySelectorAll("[data-speak-btn]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const card = btn.closest("[data-speak]");
+    const text = card.getAttribute("data-speak");
+    if (!("speechSynthesis" in window)){
+      alert("這支手機的瀏覽器不支援語音朗讀");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "zh-TW";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+});
+
+/* ---------- 網路狀態顯示（呼應「離線也能用」的核心承諾） ---------- */
+function updateStatus(){
+  const online = navigator.onLine;
+  document.body.classList.toggle("is-offline", !online);
+  document.getElementById("statusText").textContent = online ? "目前有網路" : "目前離線";
+  document.getElementById("statusSub").textContent = online
+    ? "正在背景更新最新資料"
+    : "資料已存在手機裡，離線也能看";
+}
+window.addEventListener("online", updateStatus);
+window.addEventListener("offline", updateStatus);
+updateStatus();
+
+/* ---------- 安裝提示（只在尚未安裝時顯示） ---------- */
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+  if (!isStandalone) document.getElementById("installBanner").classList.add("show");
+});
+document.getElementById("installBanner").addEventListener("click", async ()=>{
+  if (deferredPrompt){
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById("installBanner").classList.remove("show");
+  }
+});
+
+/* ---------- 註冊 Service Worker：離線快取 + 背景自動更新 ---------- */
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
