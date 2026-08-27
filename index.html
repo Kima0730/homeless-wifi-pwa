@@ -261,6 +261,16 @@
     font-weight:700;
     margin-bottom:8px;
   }
+  .today-badge{
+    display:inline-block;
+    font-size:13px;
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 14px;
+    margin-bottom:16px;
+  }
 
   /* ---------- 底部導覽 ---------- */
   nav.bottom-nav{
@@ -503,6 +513,7 @@
     <!-- ============ 在地資源（志工可自行編輯下方 RESOURCES 陣列） ============ -->
     <section class="tab-panel" id="panel-res">
       <p class="section-lead">在地收容、供餐、盥洗資訊，由志工依當地實際狀況填寫更新。允許定位的話，會自動依距離排序，並顯示目前是否營業中。</p>
+      <div class="today-badge" id="todayBadge"></div>
       <div id="resList"></div>
     </section>
 
@@ -615,9 +626,16 @@ function formatDistance(m){
 }
 
 // 解析 "1-5 09:00-17:00" 這種格式，看不懂就回傳 null（等於沒有營業時間資訊）
+// 有做容錯處理：不管是打「-」還是從 Google 地圖複製貼上常見的「–」「—」「~」都看得懂，全形數字、全形冒號、多餘空格也會自動修正
 function parseHours(str){
   if (!str) return null;
-  const parts = str.trim().split(/\s+/);
+  const normalized = str
+    .replace(/[–—～]/g, "-")           // 各種長短破折號、波浪號 → 標準連字號
+    .replace(/[：]/g, ":")              // 全形冒號 → 半形冒號
+    .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)) // 全形數字 → 半形數字
+    .replace(/\s*-\s*/g, "-")           // 連字號前後多餘空格去掉
+    .trim();
+  const parts = normalized.split(/\s+/);
   if (parts.length < 2) return null;
   const timeMatch = parts[parts.length-1].match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
   if (!timeMatch) return null;
@@ -643,6 +661,16 @@ function isOpenNow(hoursStr){
   if (!parsed.days.has(isoDay)) return false;
   const nowMin = now.getHours()*60 + now.getMinutes();
   return nowMin >= parsed.startMin && nowMin <= parsed.endMin;
+}
+
+const WEEKDAY_LABELS = ["日","一","二","三","四","五","六"];
+function updateTodayBadge(){
+  const el = document.getElementById("todayBadge");
+  if (!el) return;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,"0");
+  const mm = String(now.getMinutes()).padStart(2,"0");
+  el.textContent = `🕒 今天是星期${WEEKDAY_LABELS[now.getDay()]}，現在 ${hh}:${mm}`;
 }
 
 function requestUserLocation(){
@@ -705,6 +733,8 @@ function renderResources(){
 }
 renderResources();
 loadResourcesFromSheet();
+updateTodayBadge();
+setInterval(updateTodayBadge, 60000); // 每分鐘更新一次時間顯示
 
 /* ---------- 底部導覽切換 ---------- */
 const navBtns = document.querySelectorAll(".nav-btn");
