@@ -80,6 +80,18 @@
   body.is-offline .pulse-ring{display:none;}
   .status-text{font-size:15px; font-weight:700; letter-spacing:.02em;}
   .status-sub{font-size:12.5px; color:var(--text-muted); margin-top:1px;}
+
+  .weather-warning{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 18px;
+    font-size:14px;
+    font-weight:700;
+    line-height:1.5;
+  }
+  .weather-warning.heat{background:var(--coral-dim); color:var(--coral);}
+  .weather-warning.cold{background:#1A3A5C; color:#8EA8F5;}
   @media (prefers-reduced-motion: reduce){
     .pulse-ring{animation:none;}
   }
@@ -271,6 +283,19 @@
     padding:6px 14px;
     margin-bottom:16px;
   }
+  .feedback-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    min-height:56px;
+    margin-top:8px;
+    border-radius:12px;
+    border:1.5px dashed var(--line);
+    background:transparent;
+    color:var(--text-muted);
+    font-size:14.5px;
+    font-weight:700;
+    text-decoration:none;
+  }
 
   /* ---------- 底部導覽 ---------- */
   nav.bottom-nav{
@@ -358,6 +383,8 @@
       <div class="status-sub" id="statusSub">資料已存在手機裡，離線也能看</div>
     </div>
   </div>
+
+  <div class="weather-warning" id="weatherWarning" style="display:none;"></div>
 
   <h1>找網路・找幫助</h1>
   <p class="subtitle">這個網頁存在你的手機裡，就算完全沒有網路，也可以打開來看。</p>
@@ -546,6 +573,7 @@
       <p class="section-lead">在地收容、供餐、盥洗資訊，由志工依當地實際狀況填寫更新。允許定位的話，會自動依距離排序，並顯示目前是否營業中。</p>
       <div class="today-badge" id="todayBadge"></div>
       <div id="resList"></div>
+      <a class="feedback-btn" id="feedbackBtn" href="#" target="_blank" rel="noopener" style="display:none;">✏️ 發現資訊有誤，或想新增地點？點此回報</a>
     </section>
 
   </main>
@@ -584,6 +612,25 @@ const RESOURCES = [
    3. 把連結貼到下面 GOOGLE_SHEET_CSV_URL 這行的引號中間即可，其餘不用改
    ========================================================= */
 const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4LqmDOLZTRz5NAklX2VLui_uRFU6XMHvQvCN_hhRLKtsWOh6aoOJtjyGHRdR6V4abhIImdsAou1D2/pub?output=csv";
+
+/* =========================================================
+   「回報資訊有誤 / 志工投稿新資源」的表單連結
+   建一個 Google 表單（欄位建議：想做什麼？[新增地點/回報有誤]、
+   地點名稱、詳細說明、聯絡方式(可留空)），
+   記得「回應」設定裡不要打開「收集電子郵件地址」，
+   這樣填表單完全不用登入、不用留信箱。
+   建好後把分享連結貼到下面引號中間即可，其餘不用改。
+   留空的話，「在地資源」分頁就不會顯示這個按鈕。
+   ========================================================= */
+const FEEDBACK_FORM_URL = "";
+
+function initFeedbackButton(){
+  const btn = document.getElementById("feedbackBtn");
+  if (!btn || !FEEDBACK_FORM_URL) return;
+  btn.href = FEEDBACK_FORM_URL;
+  btn.style.display = "flex";
+}
+initFeedbackButton();
 
 function parseCSV(text){
   return text.trim().split(/\r?\n/).map(line=>{
@@ -828,6 +875,39 @@ function updateStatus(){
 window.addEventListener("online", updateStatus);
 window.addEventListener("offline", updateStatus);
 updateStatus();
+
+/* =========================================================
+   極端天氣示警（用免費、不需申請金鑰的 Open-Meteo 氣象服務）
+   台北市中心座標寫死在這裡，判斷今天的最高溫、最低溫，
+   超過門檻就在頁面上方顯示警示。抓不到資料（例如離線）就安靜跳過。
+   ========================================================= */
+async function checkWeatherWarning(){
+  const el = document.getElementById("weatherWarning");
+  if (!el) return;
+  try{
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=25.0478&longitude=121.5319&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTaipei&forecast_days=1";
+    const res = await fetch(url);
+    const data = await res.json();
+    const tMax = data?.daily?.temperature_2m_max?.[0];
+    const tMin = data?.daily?.temperature_2m_min?.[0];
+    if (typeof tMax !== "number" || typeof tMin !== "number") return;
+
+    if (tMax >= 36){
+      el.textContent = `🥵 今日高溫來到 ${Math.round(tMax)}°C，請多喝水、盡量待在陰涼處，避免長時間曝曬`;
+      el.className = "weather-warning heat";
+      el.style.display = "flex";
+    } else if (tMin <= 10){
+      el.textContent = `🥶 今日低溫下探 ${Math.round(tMin)}°C，請注意保暖，需要避寒地點可到「在地資源」分頁查詢`;
+      el.className = "weather-warning cold";
+      el.style.display = "flex";
+    } else {
+      el.style.display = "none";
+    }
+  }catch(e){
+    // 離線或服務打不開時安靜略過，不影響其他功能
+  }
+}
+checkWeatherWarning();
 
 /* ---------- 安裝提示（只在尚未安裝時顯示） ---------- */
 let deferredPrompt;
