@@ -892,7 +892,7 @@ async function checkWeatherWarning(){
     const tMin = data?.daily?.temperature_2m_min?.[0];
     if (typeof tMax !== "number" || typeof tMin !== "number") return;
 
-    if (tMax >= 36){
+    if (tMax >= 34){
       el.textContent = `🥵 今日高溫來到 ${Math.round(tMax)}°C，請多喝水、盡量待在陰涼處，避免長時間曝曬`;
       el.className = "weather-warning heat";
       el.style.display = "flex";
