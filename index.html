@@ -188,82 +188,19 @@
   }
   .speak-btn:active{background:var(--surface-2);}
 
-  /* ---------- 地圖分區 ---------- */
-  .map-tabs{
-    display:flex; gap:8px; margin:6px 4px 16px;
-    overflow-x:auto;
-  }
-  .map-tab{
-    flex:none;
-    padding:12px 18px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:var(--surface);
-    color:var(--text-muted);
-    font-size:15.5px;
-    font-weight:700;
-  }
-  .map-tab.active{
-    background:var(--amber-dim);
-    border-color:var(--amber);
-    color:var(--amber);
-  }
-  .map-frame{
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:12px;
-    display:none;
-  }
-  .map-frame.active{display:block;}
-  .map-frame svg{width:100%; height:auto; display:block; border-radius:12px;}
-  .map-frame svg text{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;}
-  .map-disclaimer{
-    font-size:13px; color:var(--text-muted);
-    margin-top:10px; line-height:1.6;
-    display:flex; gap:8px; align-items:flex-start;
-  }
-  .map-nav-btn{
+  .maps-link-btn{
     display:flex; align-items:center; justify-content:center; gap:8px;
     width:100%;
-    min-height:52px;
-    margin-top:12px;
-    border-radius:12px;
+    min-height:64px;
+    margin-bottom:18px;
+    border-radius:var(--radius);
     border:1.5px solid var(--amber);
     background:var(--amber-dim);
     color:var(--amber);
-    font-size:15px;
+    font-size:16px;
     font-weight:800;
     text-decoration:none;
   }
-  .gps-status{
-    font-size:13px;
-    color:var(--text-muted);
-    margin-bottom:10px;
-    padding:8px 10px;
-    background:var(--bg);
-    border-radius:10px;
-  }
-  .gps-status.located{color:#8EA8F5;}
-  .gps-status.denied{color:var(--text-muted);}
-  #gpsDotTaipei circle:first-child,
-  #gpsDotWanhua circle:first-child,
-  #gpsDot228 circle:first-child{
-    animation:pulse 2.2s ease-out infinite;
-    transform-origin:center;
-    transform-box:fill-box;
-  }
-  @media (prefers-reduced-motion: reduce){
-    #gpsDotTaipei circle:first-child,
-    #gpsDotWanhua circle:first-child,
-    #gpsDot228 circle:first-child{ animation:none; }
-  }
-  .map-legend{
-    display:flex; flex-wrap:wrap; gap:10px;
-    margin-top:12px;
-  }
-  .legend-item{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--text-muted);}
-  .legend-dot{width:12px; height:12px; border-radius:50%; flex:none;}
 
   /* ---------- 緊急求助 ---------- */
   .sos-warning{
@@ -303,11 +240,27 @@
     padding:18px;
     margin-bottom:14px;
   }
-  .res-head{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+  .res-head{display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap;}
   .res-icon{font-size:26px;}
   .res-title{font-size:19px; font-weight:800;}
   .res-item{font-size:16px; line-height:1.7; color:var(--text); margin:4px 0;}
   .res-empty{color:var(--text-muted); font-size:15px; line-height:1.7;}
+  .res-card.dimmed{opacity:0.6;}
+  .res-badge{
+    font-size:12.5px;
+    font-weight:800;
+    padding:3px 9px;
+    border-radius:999px;
+  }
+  .res-badge.open{background:var(--teal-dim); color:var(--teal);}
+  .res-badge.closed{background:var(--surface-2); color:var(--text-muted);}
+  .res-distance{
+    display:block;
+    font-size:13.5px;
+    color:#8EA8F5;
+    font-weight:700;
+    margin-bottom:8px;
+  }
 
   /* ---------- 底部導覽 ---------- */
   nav.bottom-nav{
@@ -513,122 +466,10 @@
       </div>
     </section>
 
-    <!-- ============ 地圖 ============ -->
-    <section class="tab-panel" id="panel-map">
-      <p class="section-lead">選一區看簡易地圖。這是示意圖，不是精確地圖，實際位置請以現場路標為準。</p>
-      <div class="map-tabs" id="mapTabs">
-        <button class="map-tab active" data-map="taipei">台北車站</button>
-        <button class="map-tab" data-map="wanhua">萬華龍山寺</button>
-        <button class="map-tab" data-map="228">二二八公園</button>
-      </div>
-
-      <div class="map-frame active" id="map-taipei">
-        <div class="gps-status" id="gpsStatusTaipei">📍 正在嘗試定位…（需要允許定位權限，不需要網路）</div>
-        <svg viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg" id="svgTaipei">
-          <rect x="0" y="0" width="340" height="340" rx="12" fill="#0F1B2C"/>
-          <!-- 忠孝西路（南側） -->
-          <line x1="0" y1="230" x2="340" y2="230" stroke="#3A4E6C" stroke-width="5"/>
-          <text x="8" y="222" fill="#7C8DA6" font-size="11" font-weight="700">忠孝西路</text>
-          <!-- 市民大道（北側） -->
-          <line x1="0" y1="55" x2="340" y2="55" stroke="#3A4E6C" stroke-width="5"/>
-          <text x="8" y="47" fill="#7C8DA6" font-size="11" font-weight="700">市民大道</text>
-          <!-- 承德路（西側） -->
-          <line x1="60" y1="0" x2="60" y2="340" stroke="#3A4E6C" stroke-width="5"/>
-          <text x="20" y="330" fill="#7C8DA6" font-size="11" font-weight="700" transform="rotate(0)">承德路</text>
-          <!-- 中山南路（東側） -->
-          <line x1="290" y1="0" x2="290" y2="340" stroke="#3A4E6C" stroke-width="5"/>
-          <text x="295" y="330" fill="#7C8DA6" font-size="11" font-weight="700">中山南路</text>
-          <!-- 館前路（往南通二二八公園方向） -->
-          <line x1="185" y1="230" x2="185" y2="340" stroke="#2A3E5C" stroke-width="4" stroke-dasharray="3 4"/>
-          <text x="192" y="325" fill="#5A6A88" font-size="10">館前路</text>
-          <text x="192" y="337" fill="#5A6A88" font-size="9">↓往二二八公園</text>
-
-          <!-- 車站主體 -->
-          <rect x="130" y="105" width="90" height="90" rx="8" fill="#1D3050" stroke="#4FD1AE" stroke-width="1.5"/>
-          <text x="175" y="145" text-anchor="middle" fill="#F5F3ED" font-size="14" font-weight="700">台北車站</text>
-          <text x="175" y="162" text-anchor="middle" fill="#7C8DA6" font-size="9">北平西路3號</text>
-
-          <!-- 資源標點（示意位置） -->
-          <circle cx="95" cy="80" r="9" fill="#4FD1AE"/>
-          <text x="95" y="66" text-anchor="middle" fill="#4FD1AE" font-size="12" font-weight="700">全家</text>
-          <circle cx="255" cy="80" r="9" fill="#FFC857"/>
-          <text x="255" y="66" text-anchor="middle" fill="#FFC857" font-size="12" font-weight="700">充電座</text>
-          <circle cx="95" cy="205" r="9" fill="#4FD1AE"/>
-          <text x="95" y="221" text-anchor="middle" fill="#4FD1AE" font-size="12" font-weight="700">7-11</text>
-          <circle cx="255" cy="205" r="9" fill="#3E6FE0"/>
-          <text x="255" y="221" text-anchor="middle" fill="#8EA8F5" font-size="12" font-weight="700">iTaiwan</text>
-
-          <!-- GPS 定位藍點（JS 動態控制顯示與位置） -->
-          <g id="gpsDotTaipei" style="display:none;">
-            <circle cx="170" cy="170" r="16" fill="#3E6FE0" opacity="0.25"/>
-            <circle cx="170" cy="170" r="7" fill="#3E6FE0" stroke="#0F1B2C" stroke-width="2"/>
-          </g>
-        </svg>
-        <div class="map-legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#4FD1AE"></span>免費 Wi-Fi</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>充電座</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0;box-shadow:0 0 0 2px #16263D"></span>你的位置</span>
-        </div>
-        <div class="map-disclaimer">ℹ️ 已依真實街道比例繪製，藍點為即時定位（離線也能用衛星定位，但需先允許定位權限）。店家標點仍為示意，實際請以現場路標為準。</div>
-        <a class="map-nav-btn" href="https://www.google.com/maps/search/?api=1&query=%E5%8F%B0%E5%8C%97%E8%BB%8A%E7%AB%99" target="_blank" rel="noopener">🧭 有網路的話，點這裡開 Google 地圖導航</a>
-      </div>
-
-
-      <div class="map-frame" id="map-wanhua">
-        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="340" height="300" rx="12" fill="#0F1B2C"/>
-          <rect x="120" y="110" width="100" height="70" rx="8" fill="#1D3050" stroke="#2A3E5C"/>
-          <text x="170" y="150" text-anchor="middle" fill="#F5F3ED" font-size="15" font-weight="700">龍山寺</text>
-          <line x1="170" y1="0" x2="170" y2="300" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
-          <line x1="0" y1="150" x2="340" y2="150" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
-          <circle cx="70" cy="90" r="10" fill="#3E6FE0"/>
-          <text x="70" y="75" text-anchor="middle" fill="#8EA8F5" font-size="13" font-weight="700">捷運站</text>
-          <circle cx="260" cy="80" r="10" fill="#4FD1AE"/>
-          <text x="260" y="65" text-anchor="middle" fill="#4FD1AE" font-size="13" font-weight="700">全家</text>
-          <circle cx="90" cy="230" r="10" fill="#FFC857"/>
-          <text x="90" y="250" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">公園座椅</text>
-          <circle cx="250" cy="225" r="10" fill="#FF6B4A"/>
-          <text x="250" y="245" text-anchor="middle" fill="#FF6B4A" font-size="13" font-weight="700">公用電話</text>
-        </svg>
-        <div class="map-legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#4FD1AE"></span>免費 Wi-Fi</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>可休息座椅</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#FF6B4A"></span>公用電話</span>
-        </div>
-        <div class="map-disclaimer">ℹ️ 示意方位圖，實際店家位置以現場為準。</div>
-        <a class="map-nav-btn" href="https://www.google.com/maps/search/?api=1&query=%E8%90%AC%E8%8F%AF%E9%BE%8D%E5%B1%B1%E5%AF%BA" target="_blank" rel="noopener">🧭 有網路的話，點這裡開 Google 地圖導航</a>
-      </div>
-
-      <div class="map-frame" id="map-228">
-        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="340" height="300" rx="12" fill="#0F1B2C"/>
-          <rect x="110" y="100" width="120" height="90" rx="8" fill="#1D3050" stroke="#2A3E5C"/>
-          <text x="170" y="150" text-anchor="middle" fill="#F5F3ED" font-size="15" font-weight="700">二二八公園</text>
-          <line x1="170" y1="0" x2="170" y2="300" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
-          <line x1="0" y1="150" x2="340" y2="150" stroke="#2A3E5C" stroke-width="2" stroke-dasharray="4 5"/>
-          <circle cx="80" cy="70" r="10" fill="#3E6FE0"/>
-          <text x="80" y="55" text-anchor="middle" fill="#8EA8F5" font-size="13" font-weight="700">捷運站</text>
-          <circle cx="250" cy="70" r="10" fill="#FFC857"/>
-          <text x="250" y="55" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">充電座</text>
-          <circle cx="90" cy="235" r="10" fill="#FFC857"/>
-          <text x="90" y="255" text-anchor="middle" fill="#FFC857" font-size="13" font-weight="700">公園座椅</text>
-          <circle cx="250" cy="230" r="10" fill="#FF6B4A"/>
-          <text x="250" y="250" text-anchor="middle" fill="#FF6B4A" font-size="13" font-weight="700">公用電話</text>
-        </svg>
-        <div class="map-legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#FFC857"></span>充電座 / 座椅</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#3E6FE0"></span>政府 Wi-Fi</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#FF6B4A"></span>公用電話</span>
-        </div>
-        <div class="map-disclaimer">ℹ️ 示意方位圖，實際店家位置以現場為準。</div>
-        <a class="map-nav-btn" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%8C%E4%BA%8C%E5%85%AB%E5%92%8C%E5%B9%B3%E5%85%AC%E5%9C%92%20%E5%8F%B0%E5%8C%97" target="_blank" rel="noopener">🧭 有網路的話，點這裡開 Google 地圖導航</a>
-      </div>
-    </section>
-
     <!-- ============ 求助 ============ -->
     <section class="tab-panel" id="panel-sos">
+      <a class="maps-link-btn" href="https://www.google.com/maps" target="_blank" rel="noopener">🧭 打開 Google 地圖找路（需要網路）</a>
+
       <div class="sos-warning">
         ⚠️ 這些電話需要手機「還有門號、還有通話訊號」才能打通，光靠 Wi-Fi 是打不出去的。
         如果手機沒有門號，可以請商店店員幫忙用店裡電話撥打。
@@ -661,7 +502,7 @@
 
     <!-- ============ 在地資源（志工可自行編輯下方 RESOURCES 陣列） ============ -->
     <section class="tab-panel" id="panel-res">
-      <p class="section-lead">在地收容、供餐、盥洗資訊，由志工依當地實際狀況填寫更新。</p>
+      <p class="section-lead">在地收容、供餐、盥洗資訊，由志工依當地實際狀況填寫更新。允許定位的話，會自動依距離排序，並顯示目前是否營業中。</p>
       <div id="resList"></div>
     </section>
 
@@ -669,7 +510,6 @@
 
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="wifi"><span class="nav-icon">📶</span>上網</button>
-    <button class="nav-btn" data-tab="map"><span class="nav-icon">🗺️</span>地圖</button>
     <button class="nav-btn" data-tab="res"><span class="nav-icon">📍</span>在地資源</button>
     <button class="nav-btn nav-sos" data-tab="sos"><span class="nav-icon">🆘</span>求助</button>
   </nav>
@@ -680,20 +520,24 @@
    志工編輯區：在地資源
    直接修改下面這個陣列即可新增/修改資源，不用動其他程式碼。
    type 決定圖示： shelter=🛏 收容避寒 / food=🍚 供餐 / wash=🚿 盥洗如廁
+   lat/lng：可選填，填了才能依距離排序（用 Google 地圖長按該地點取得經緯度）
+   hours：可選填，填了才能顯示「營業中/非營業時間」。格式：星期 開始-結束
+          星期用 1-7（1=一、7=日），可以用逗號或範圍，例如 1-5 或 1,3,5 或 1-5,7
+          例如："1-5 09:00-17:00" 表示週一到週五 9 點到 17 點
    ========================================================= */
 const RESOURCES = [
   // 範例（請刪除並換成當地志工確認過的真實資訊）：
-  // { type:"shelter", title:"XX 區臨時收容所", items:["地址：____","開放時間：____","電話：____"] },
-  // { type:"food", title:"XX 教會供餐", items:["時間：每週三 17:00","地點：____"] },
-  // { type:"wash", title:"XX 公共盥洗室", items:["地點：____","開放時間：____"] },
+  // { type:"shelter", title:"XX 區臨時收容所", items:["地址：____","開放時間：____","電話：____"], lat:25.0367, lng:121.4998, hours:"1-5 09:00-17:00" },
 ];
 
 /* =========================================================
    Google 試算表串接（志工不用碰程式碼就能新增資源）
    設定方式：
-   1. 建一個 Google 試算表，第一列（標題列）依序填：type,title,item1,item2,item3,item4
+   1. 建一個 Google 試算表，第一列（標題列）依序填：
+      type,title,item1,item2,item3,item4,lat,lng,hours
       type 只能填 shelter / food / wash 三種之一
-      例如第二列：shelter,萬華臨時收容所,地址：____,開放時間：____,電話：____,
+      lat、lng、hours 這三欄可以留空不填，只是留空就不會有距離排序跟營業中提示
+      例如第二列：shelter,萬華臨時收容所,地址：____,開放時間：____,電話：____,,25.0367,121.4998,1-5 09:00-17:00
    2. 檔案 → 共用 → 發布到網路 → 選這張工作表、格式選 CSV → 複製連結
    3. 把連結貼到下面 GOOGLE_SHEET_CSV_URL 這行的引號中間即可，其餘不用改
    ========================================================= */
@@ -735,7 +579,10 @@ function applyCSV(text){
     .map(r => ({
       type: r[0].trim(),
       title: r[1].trim(),
-      items: r.slice(2).map(x=>x.trim()).filter(Boolean)
+      items: r.slice(2,6).map(x=>(x||"").trim()).filter(Boolean),
+      lat: r[6] ? parseFloat(r[6]) : null,
+      lng: r[7] ? parseFloat(r[7]) : null,
+      hours: r[8] ? r[8].trim() : null
     }));
   if (fromSheet.length){
     RESOURCES.length = 0;
@@ -750,6 +597,67 @@ const RES_META = {
   wash:{icon:"🚿", label:"盥洗・如廁"}
 };
 
+/* ---------- GPS 依距離排序 + 營業中判斷 ---------- */
+let userPos = null;      // { lat, lng }，允許定位後才會有值
+let geoRequested = false; // 避免重複跳出定位權限請求
+
+function distanceMeters(lat1, lng1, lat2, lng2){
+  const R = 6371000;
+  const toRad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * toRad;
+  const dLng = (lng2 - lng1) * toRad;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*toRad)*Math.cos(lat2*toRad)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function formatDistance(m){
+  return m >= 1000 ? (m/1000).toFixed(1) + " 公里" : Math.round(m/10)*10 + " 公尺";
+}
+
+// 解析 "1-5 09:00-17:00" 這種格式，看不懂就回傳 null（等於沒有營業時間資訊）
+function parseHours(str){
+  if (!str) return null;
+  const parts = str.trim().split(/\s+/);
+  if (parts.length < 2) return null;
+  const timeMatch = parts[parts.length-1].match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
+  if (!timeMatch) return null;
+  const days = new Set();
+  parts.slice(0, -1).join(",").split(",").forEach(seg=>{
+    const rangeMatch = seg.match(/^(\d)-(\d)$/);
+    if (rangeMatch){
+      for (let d=+rangeMatch[1]; d<=+rangeMatch[2]; d++) days.add(d);
+    } else if (/^\d$/.test(seg)){
+      days.add(+seg);
+    }
+  });
+  if (days.size === 0) return null;
+  return { days, startMin:(+timeMatch[1])*60+(+timeMatch[2]), endMin:(+timeMatch[3])*60+(+timeMatch[4]) };
+}
+
+// 回傳 true=營業中 / false=非營業時間 / null=沒有資料可判斷
+function isOpenNow(hoursStr){
+  const parsed = parseHours(hoursStr);
+  if (!parsed) return null;
+  const now = new Date();
+  const isoDay = now.getDay() === 0 ? 7 : now.getDay();
+  if (!parsed.days.has(isoDay)) return false;
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  return nowMin >= parsed.startMin && nowMin <= parsed.endMin;
+}
+
+function requestUserLocation(){
+  if (geoRequested || !("geolocation" in navigator)) return;
+  geoRequested = true;
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      renderResources();
+    },
+    () => { /* 拒絕或定位失敗：安靜略過，資源仍會照原順序顯示 */ },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+  );
+}
+
 function renderResources(){
   const list = document.getElementById("resList");
   if (RESOURCES.length === 0){
@@ -759,10 +667,38 @@ function renderResources(){
     </div>`;
     return;
   }
-  list.innerHTML = RESOURCES.map(r => {
+
+  // 幫每筆資源算距離（有座標、也有使用者位置才算得出來）
+  const enriched = RESOURCES.map(r => {
+    const dist = (userPos && r.lat && r.lng) ? distanceMeters(userPos.lat, userPos.lng, r.lat, r.lng) : null;
+    const open = isOpenNow(r.hours);
+    return { ...r, dist, open };
+  });
+
+  // 有距離的排前面（近到遠），沒有距離的維持原順序排在最後
+  enriched.sort((a, b) => {
+    if (a.dist === null && b.dist === null) return 0;
+    if (a.dist === null) return 1;
+    if (b.dist === null) return -1;
+    return a.dist - b.dist;
+  });
+
+  list.innerHTML = enriched.map(r => {
     const meta = RES_META[r.type] || {icon:"📍", label:"資源"};
-    return `<div class="res-card">
-      <div class="res-head"><span class="res-icon">${meta.icon}</span><span class="res-title">${r.title}</span></div>
+    const statusBadge = r.open === true
+      ? `<span class="res-badge open">🟢 營業中</span>`
+      : r.open === false
+        ? `<span class="res-badge closed">⚪ 非營業時間</span>`
+        : "";
+    const distText = r.dist !== null ? `<span class="res-distance">📍 距離你約 ${formatDistance(r.dist)}</span>` : "";
+    const cardClass = r.open === false ? "res-card dimmed" : "res-card";
+    return `<div class="${cardClass}">
+      <div class="res-head">
+        <span class="res-icon">${meta.icon}</span>
+        <span class="res-title">${r.title}</span>
+        ${statusBadge}
+      </div>
+      ${distText}
       ${r.items.map(i => `<div class="res-item">${i}</div>`).join("")}
     </div>`;
   }).join("");
@@ -779,119 +715,8 @@ navBtns.forEach(btn=>{
     document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
     document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
     window.scrollTo({top:0, behavior:"instant"});
+    if (btn.dataset.tab === "res") requestUserLocation();
   });
-});
-
-/* ---------- 地圖分頁切換 ---------- */
-document.querySelectorAll(".map-tab").forEach(tab=>{
-  tab.addEventListener("click", ()=>{
-    document.querySelectorAll(".map-tab").forEach(t=>t.classList.remove("active"));
-    tab.classList.add("active");
-    document.querySelectorAll(".map-frame").forEach(f=>f.classList.remove("active"));
-    document.getElementById("map-"+tab.dataset.map).classList.add("active");
-    updateGpsWatch();
-  });
-});
-
-/* =========================================================
-   GPS 真實定位藍點（台北車站區域，示範版）
-   原理：把手機回傳的經緯度，換算成跟地圖圖上同比例的座標，
-   畫在對應位置。定位本身靠衛星，不需要網路；
-   只有在使用者切到「地圖」分頁、且選到有支援的區域時才會啟動，
-   離開時自動停止，節省電量。
-   ========================================================= */
-const MAP_CONFIGS = {
-  taipei: {
-    ref: { lat: 25.0475613, lng: 121.5173399 }, // 台北車站
-    originX: 175, originY: 150,   // 對應車站在圖上的位置
-    scale: 0.62,                   // 每公尺對應的圖上單位（決定地圖顯示範圍）
-    dotId: "gpsDotTaipei",
-    statusId: "gpsStatusTaipei",
-    viewSize: 340
-  }
-  // 之後要幫萬華龍山寺、二二八公園也加上真實定位，
-  // 只要比照這個格式，各自加一組設定（含真實經緯度）即可。
-};
-
-let currentWatchId = null;
-let currentWatchArea = null;
-
-function latLngToMapXY(lat, lng, cfg){
-  const dxMeters = (lng - cfg.ref.lng) * 111320 * Math.cos(cfg.ref.lat * Math.PI / 180);
-  const dySouthMeters = (cfg.ref.lat - lat) * 110540; // 越往南數值越大，符合 SVG y 軸方向
-  return {
-    x: cfg.originX + dxMeters * cfg.scale,
-    y: cfg.originY + dySouthMeters * cfg.scale
-  };
-}
-
-function setGpsStatus(cfg, text, cls){
-  const el = document.getElementById(cfg.statusId);
-  if (!el) return;
-  el.textContent = text;
-  el.className = "gps-status" + (cls ? " " + cls : "");
-}
-
-function startWatch(areaKey){
-  const cfg = MAP_CONFIGS[areaKey];
-  if (!cfg) return; // 這個區域還沒有真實座標資料，不啟動
-  if (!("geolocation" in navigator)){
-    setGpsStatus(cfg, "📍 這台裝置不支援定位功能", "denied");
-    return;
-  }
-  currentWatchId = navigator.geolocation.watchPosition(
-    (pos) => {
-      const cfg2 = MAP_CONFIGS[areaKey];
-      const { x, y } = latLngToMapXY(pos.coords.latitude, pos.coords.longitude, cfg2);
-      const dot = document.getElementById(cfg2.dotId);
-      const pad = 14;
-      const clampedX = Math.min(Math.max(x, pad), cfg2.viewSize - pad);
-      const clampedY = Math.min(Math.max(y, pad), cfg2.viewSize - pad);
-      if (dot){
-        dot.setAttribute("transform", `translate(${clampedX - 170}, ${clampedY - 170})`);
-        dot.style.display = "block";
-      }
-      const outOfView = (x < pad || x > cfg2.viewSize - pad || y < pad || y > cfg2.viewSize - pad);
-      setGpsStatus(cfg2, outOfView ? "📍 你目前的位置在這張圖範圍外，藍點顯示大概方向" : "📍 藍點是你目前的位置", "located");
-    },
-    (err) => {
-      const cfg2 = MAP_CONFIGS[areaKey];
-      if (err.code === err.PERMISSION_DENIED){
-        setGpsStatus(cfg2, "📍 未取得定位權限，仍可查看地圖示意位置", "denied");
-      } else {
-        setGpsStatus(cfg2, "📍 目前無法定位（例如室內收不到衛星訊號），仍可查看地圖示意位置", "denied");
-      }
-    },
-    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
-  );
-  currentWatchArea = areaKey;
-}
-
-function stopWatch(){
-  if (currentWatchId !== null && "geolocation" in navigator){
-    navigator.geolocation.clearWatch(currentWatchId);
-  }
-  currentWatchId = null;
-  currentWatchArea = null;
-}
-
-function updateGpsWatch(){
-  const onMapTab = document.getElementById("panel-map").classList.contains("active");
-  const activeTab = document.querySelector(".map-tab.active");
-  const areaKey = activeTab ? activeTab.dataset.map : null;
-  if (!onMapTab || !MAP_CONFIGS[areaKey]){
-    stopWatch();
-    return;
-  }
-  if (currentWatchArea !== areaKey){
-    stopWatch();
-    startWatch(areaKey);
-  }
-}
-
-// 底部導覽切到「地圖」分頁時，也要重新檢查是否該啟動定位
-navBtns.forEach(btn=>{
-  btn.addEventListener("click", updateGpsWatch);
 });
 
 /* ---------- 「我已經連上了」確認按鈕（本機記住，重開網頁還記得） ---------- */
