@@ -319,6 +319,33 @@
     padding:14px 10px 6px;
     margin:0 4px 20px;
   }
+
+  /* ---------- 離線功能準備狀態 ---------- */
+  .offline-ready-badge{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin:0 4px 16px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--text-muted);
+  }
+  .offline-ready-dot{
+    width:10px; height:10px;
+    border-radius:50%;
+    background:var(--amber);
+    flex:none;
+    animation:pulse 1.4s ease-out infinite;
+  }
+  .offline-ready-badge.ready{border-color:var(--teal); color:var(--teal);}
+  .offline-ready-badge.ready .offline-ready-dot{background:var(--teal); animation:none;}
+  @media (prefers-reduced-motion: reduce){
+    .offline-ready-dot{ animation:none; }
+  }
 </style>
 </head>
 <body class="is-offline">
@@ -344,6 +371,10 @@
 
     <!-- ============ 上網 ============ -->
     <section class="tab-panel active" id="panel-wifi">
+      <div class="offline-ready-badge" id="offlineReadyBadge">
+        <span class="offline-ready-dot"></span>
+        <span id="offlineReadyText">⏳ 正在準備離線功能，請稍候幾秒…</span>
+      </div>
       <div class="howto-strip">
         <svg viewBox="0 0 400 222" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
           <!-- 手機1：主畫面找設定 -->
@@ -821,6 +852,37 @@ if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   });
 }
+
+/* ---------- 離線功能準備狀態顯示（給使用者明確訊號：現在可以安全斷網了） ---------- */
+(function(){
+  const badge = document.getElementById("offlineReadyBadge");
+  const text = document.getElementById("offlineReadyText");
+  if (!badge || !text) return;
+
+  function markReady(){
+    badge.classList.add("ready");
+    text.textContent = "✅ 離線功能已準備好，可以安全斷網了";
+  }
+
+  if (!("serviceWorker" in navigator)){
+    text.textContent = "⚠️ 這個瀏覽器不支援離線功能，請改用 Chrome 或 Safari 開啟";
+    return;
+  }
+
+  // 這次載入這個頁面時，已經有生效中的 Service Worker 在控制 → 早就準備好了
+  if (navigator.serviceWorker.controller){
+    markReady();
+  } else {
+    // 第一次造訪：等 Service Worker 安裝並開始接管頁面
+    navigator.serviceWorker.addEventListener("controllerchange", markReady);
+    // 保險機制：太久還沒準備好，提示使用者重新整理一次
+    setTimeout(() => {
+      if (!badge.classList.contains("ready")){
+        text.textContent = "⚠️ 準備時間比較久，請確認網路穩定，或重新整理頁面一次";
+      }
+    }, 8000);
+  }
+})();
 
 </script>
 </body>
