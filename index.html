@@ -4,11 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0F1B2C">
-<meta name="description" content="離線也能用：免費 Wi-Fi 連線步驟、簡易地圖與緊急求助電話">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>找網路・找幫助</title>
+<title>志工招募・活動行事曆</title>
 <style>
   :root{
     --bg:#0F1B2C;
@@ -21,10 +17,7 @@
     --teal-dim:#1F4A42;
     --amber:#FFC857;
     --amber-dim:#4A3B18;
-    --coral:#FF6B4A;
-    --coral-dim:#4A2418;
     --radius:18px;
-    --tap:64px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -32,938 +25,150 @@
     background:var(--bg);
     color:var(--text);
     font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
-    -webkit-tap-highlight-color:transparent;
-    overscroll-behavior-y:contain;
-    min-height:100vh;
-    min-height:100dvh;
-    display:flex;
-    flex-direction:column;
-  }
-  .app{
-    max-width:520px;
-    margin:0 auto;
-    width:100%;
-    display:flex;
-    flex-direction:column;
     min-height:100vh;
     min-height:100dvh;
   }
-
-  /* ---------- 狀態列（訊號脈動：本設計的視覺主軸） ---------- */
-  .statusbar{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:14px 18px;
-    background:var(--surface);
-    border-bottom:1px solid var(--line);
-    position:sticky;
-    top:0;
-    z-index:20;
-  }
-  .pulse-wrap{position:relative; width:16px; height:16px; flex:none;}
-  .pulse-dot{
-    width:16px; height:16px; border-radius:50%;
-    background:var(--teal);
-    position:relative; z-index:2;
-  }
-  .pulse-ring{
-    position:absolute; inset:0; border-radius:50%;
-    border:2px solid var(--teal);
-    animation:pulse 2.2s ease-out infinite;
-  }
-  @keyframes pulse{
-    0%{transform:scale(1); opacity:.9;}
-    100%{transform:scale(2.6); opacity:0;}
-  }
-  body.is-offline .pulse-dot{background:var(--text-muted);}
-  body.is-offline .pulse-ring{display:none;}
-  .status-text{font-size:15px; font-weight:700; letter-spacing:.02em;}
-  .status-sub{font-size:12.5px; color:var(--text-muted); margin-top:1px;}
-
-  .weather-warning{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:12px 18px;
-    font-size:14px;
-    font-weight:700;
-    line-height:1.5;
-  }
-  .weather-warning.heat{background:var(--coral-dim); color:var(--coral);}
-  .weather-warning.cold{background:#1A3A5C; color:#8EA8F5;}
-  @media (prefers-reduced-motion: reduce){
-    .pulse-ring{animation:none;}
-  }
+  .app{max-width:720px; margin:0 auto; padding:0 16px 60px;}
 
   h1{
     font-size:26px;
     font-weight:900;
-    letter-spacing:.01em;
-    margin:20px 18px 4px;
+    margin:28px 0 6px;
   }
   .subtitle{
-    margin:0 18px 18px;
     color:var(--text-muted);
     font-size:15px;
-    line-height:1.6;
-  }
-
-  main{flex:1; padding-bottom:110px;}
-  section.tab-panel{display:none; padding:0 16px 8px;}
-  section.tab-panel.active{display:block;}
-
-  .section-lead{
-    font-size:17px;
-    color:var(--text-muted);
-    margin:6px 4px 18px;
     line-height:1.7;
+    margin:0 0 24px;
   }
 
-  /* ---------- Wi-Fi 卡片 ---------- */
-  .wifi-card{
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:20px;
-    margin-bottom:18px;
-  }
-  .wifi-card-head{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin-bottom:14px;
-  }
-  .wifi-icon{
-    width:64px; height:64px;
-    border-radius:16px;
-    background:#fff;
-    display:flex; align-items:center; justify-content:center;
-    flex:none;
-    padding:3px;
-    box-shadow:0 0 0 1px var(--line);
-  }
-  .wifi-icon img{width:100%; height:100%; object-fit:contain; display:block;}
-
-  .confirm-btn{
-    margin-top:10px;
-    width:100%;
-    min-height:56px;
-    border-radius:12px;
-    border:1.5px solid var(--line);
-    background:transparent;
-    color:var(--text-muted);
-    font-size:17px;
-    font-weight:800;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .confirm-btn:active{background:var(--surface-2);}
-  .confirm-btn.done{
-    border-color:var(--teal);
-    background:var(--teal-dim);
-    color:var(--teal);
-  }
-  .wifi-name{font-size:21px; font-weight:800; line-height:1.3;}
-  .wifi-ssid{font-size:18px; color:var(--teal); font-weight:800; margin-top:3px; line-height:1.4;}
-  .steps{list-style:none; margin:14px 0; padding:0; display:flex; flex-direction:column; gap:10px;}
-  .step{display:flex; align-items:flex-start; gap:12px;}
-  .step-num{
-    flex:none;
-    width:32px; height:32px;
-    border-radius:50%;
-    background:var(--teal);
-    color:#0B1A17;
-    font-weight:900;
-    font-size:16px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .step-text{font-size:18px; line-height:1.5; padding-top:3px;}
-  .wifi-note{
-    display:flex; align-items:center; gap:8px;
-    font-size:14px; color:var(--text-muted);
-    background:var(--bg);
-    border-radius:12px;
-    padding:10px 12px;
-    margin-top:6px;
-  }
-  .speak-btn{
-    margin-top:14px;
-    width:100%;
-    min-height:52px;
-    border-radius:12px;
-    border:1px solid var(--line);
-    background:transparent;
-    color:var(--text);
-    font-size:16px;
-    font-weight:700;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .speak-btn:active{background:var(--surface-2);}
-
-  .maps-link-btn{
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%;
-    min-height:64px;
-    margin-bottom:18px;
-    border-radius:var(--radius);
-    border:1.5px solid var(--amber);
-    background:var(--amber-dim);
-    color:var(--amber);
-    font-size:16px;
-    font-weight:800;
-    text-decoration:none;
-  }
-
-  /* ---------- 緊急求助 ---------- */
-  .sos-warning{
-    background:var(--coral-dim);
-    border:1px solid var(--coral);
-    color:var(--text);
-    border-radius:14px;
-    padding:14px 16px;
-    font-size:14.5px;
-    line-height:1.7;
-    margin-bottom:18px;
-  }
-  .sos-btn{
-    display:flex; align-items:center; gap:16px;
-    width:100%;
-    min-height:84px;
-    border-radius:var(--radius);
-    border:none;
-    padding:16px 20px;
-    margin-bottom:14px;
-    text-decoration:none;
-    color:#fff;
-  }
-  .sos-btn .sos-icon{font-size:34px; flex:none;}
-  .sos-btn .sos-body{text-align:left;}
-  .sos-btn .sos-num{font-size:28px; font-weight:900; line-height:1;}
-  .sos-btn .sos-label{font-size:14.5px; margin-top:4px; opacity:.9;}
-  .sos-1957{background:linear-gradient(135deg,#2E9E82,#1F7A64);}
-  .sos-119{background:linear-gradient(135deg,#FF6B4A,#D8492C);}
-  .sos-110{background:linear-gradient(135deg,#3E6FE0,#2A4FB0);}
-
-  /* ---------- 在地資源（志工可編輯） ---------- */
-  .res-card{
+  .card{
     background:var(--surface);
     border:1px solid var(--line);
     border-radius:var(--radius);
     padding:18px;
-    margin-bottom:14px;
+    margin-bottom:20px;
   }
-  .res-head{display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap;}
-  .res-icon{font-size:26px;}
-  .res-title{font-size:19px; font-weight:800;}
-  .res-item{font-size:16px; line-height:1.7; color:var(--text); margin:4px 0;}
-  .res-empty{color:var(--text-muted); font-size:15px; line-height:1.7;}
-  .res-card.dimmed{opacity:0.6;}
-  .res-badge{
-    font-size:12.5px;
+  .card h2{
+    font-size:18px;
     font-weight:800;
-    padding:3px 9px;
-    border-radius:999px;
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
   }
-  .res-badge.open{background:var(--teal-dim); color:var(--teal);}
-  .res-badge.closed{background:var(--surface-2); color:var(--text-muted);}
-  .res-distance{
-    display:block;
-    font-size:13.5px;
-    color:#8EA8F5;
-    font-weight:700;
-    margin-bottom:8px;
+
+  .calendar-wrap{
+    position:relative;
+    width:100%;
+    padding-top:75%; /* aspect ratio for embedded calendar */
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
   }
-  .today-badge{
-    display:inline-block;
-    font-size:13px;
+  .calendar-wrap iframe{
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    border:0;
+  }
+  .calendar-fallback{
     color:var(--text-muted);
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:999px;
-    padding:6px 14px;
-    margin-bottom:16px;
+    font-size:14px;
+    line-height:1.7;
+    padding:20px;
   }
-  .feedback-btn{
+
+  .signup-btn{
     display:flex; align-items:center; justify-content:center; gap:8px;
     width:100%;
-    min-height:56px;
-    margin-top:8px;
+    min-height:60px;
+    margin-top:16px;
     border-radius:12px;
-    border:1.5px dashed var(--line);
-    background:transparent;
-    color:var(--text-muted);
-    font-size:14.5px;
-    font-weight:700;
+    border:none;
+    background:var(--teal);
+    color:#0B1A17;
+    font-size:16px;
+    font-weight:800;
     text-decoration:none;
   }
 
-  /* ---------- 底部導覽 ---------- */
-  nav.bottom-nav{
-    position:fixed;
-    bottom:0; left:0; right:0;
-    display:flex;
-    background:var(--surface);
-    border-top:1px solid var(--line);
-    padding-bottom:env(safe-area-inset-bottom, 0px);
-    max-width:520px;
-    margin:0 auto;
-    z-index:30;
+  .info-item{
+    font-size:15px;
+    line-height:1.8;
+    color:var(--text);
+    margin:6px 0;
   }
-  .nav-btn{
-    flex:1;
-    display:flex; flex-direction:column; align-items:center; gap:4px;
-    padding:10px 4px 8px;
-    background:none; border:none;
+  .info-item b{color:var(--teal);}
+
+  footer{
+    text-align:center;
     color:var(--text-muted);
     font-size:12.5px;
-    font-weight:700;
-    min-height:var(--tap);
-  }
-  .nav-btn .nav-icon{font-size:24px;}
-  .nav-btn.active{color:var(--teal);}
-  .nav-btn.active.nav-sos{color:var(--coral);}
-
-  .install-banner{
-    display:none;
-    margin:0 16px 16px;
-    background:var(--surface-2);
-    border:1px solid var(--teal);
-    border-radius:14px;
-    padding:14px 16px;
-    font-size:14.5px;
-    line-height:1.6;
-  }
-  .install-banner.show{display:block;}
-  .install-banner b{color:var(--teal);}
-
-  /* ---------- Wi-Fi 分頁上方的手機示意圖教學（一次性，適用所有卡片） ---------- */
-  .howto-strip{
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:14px 10px 6px;
-    margin:0 4px 20px;
-  }
-
-  /* ---------- 離線功能準備狀態 ---------- */
-  .offline-ready-badge{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:12px 14px;
-    margin:0 4px 16px;
-    font-size:14px;
-    font-weight:700;
-    color:var(--text-muted);
-  }
-  .offline-ready-dot{
-    width:10px; height:10px;
-    border-radius:50%;
-    background:var(--amber);
-    flex:none;
-    animation:pulse 1.4s ease-out infinite;
-  }
-  .offline-ready-badge.ready{border-color:var(--teal); color:var(--teal);}
-  .offline-ready-badge.ready .offline-ready-dot{background:var(--teal); animation:none;}
-  @media (prefers-reduced-motion: reduce){
-    .offline-ready-dot{ animation:none; }
+    margin-top:30px;
+    line-height:1.8;
   }
 </style>
 </head>
-<body class="is-offline">
+<body>
 <div class="app">
 
-  <div class="statusbar">
-    <div class="pulse-wrap"><div class="pulse-ring"></div><div class="pulse-dot"></div></div>
-    <div>
-      <div class="status-text" id="statusText">正在確認網路狀態…</div>
-      <div class="status-sub" id="statusSub">資料已存在手機裡，離線也能看</div>
+  <h1>🙋 志工招募</h1>
+  <p class="subtitle">看看最近有哪些街友服務活動需要人手，點日曆上的活動可以看詳情，想參加就點下面的報名按鈕。</p>
+
+  <div class="card">
+    <h2>📅 活動行事曆</h2>
+    <div class="calendar-wrap">
+      <!--
+        志工使用說明：
+        1. 把上面 Google 日曆設為「公開日曆」後，複製嵌入代碼裡的網址
+           （通常長得像 https://calendar.google.com/calendar/embed?src=xxxx%40group.calendar.google.com&ctz=Asia%2FTaipei）
+        2. 貼到下面 iframe 的 src="" 引號中間即可
+      -->
+      <iframe src="" title="志工活動行事曆" id="calendarFrame"></iframe>
+    </div>
+    <div class="calendar-fallback" id="calendarFallback" style="display:none;">
+      日曆尚未設定，請聯絡網站管理者。
     </div>
   </div>
 
-  <div class="weather-warning" id="weatherWarning" style="display:none;"></div>
-
-  <h1>找網路・找幫助</h1>
-  <p class="subtitle">這個網頁存在你的手機裡，就算完全沒有網路，也可以打開來看。</p>
-
-  <div class="install-banner" id="installBanner">
-    📲 <b>把這個網頁加到主畫面</b>，之後就算沒有網路也能像 App 一樣秒開。<br>
-    瀏覽器選單 → 「加到主畫面」或「安裝應用程式」。
+  <div class="card">
+    <h2>✋ 我要報名</h2>
+    <p class="info-item">看到想參加的活動，點下面按鈕填一個簡單表單，我們會再跟你確認時間地點。</p>
+    <a class="signup-btn" id="signupBtn" href="#" target="_blank" rel="noopener">✋ 我要報名志工活動</a>
   </div>
 
-  <main>
+  <footer>
+    這個頁面是給志工使用的活動資訊頁，跟街友使用的「找網路・找幫助」是分開的兩個頁面。
+  </footer>
 
-    <!-- ============ 上網 ============ -->
-    <section class="tab-panel active" id="panel-wifi">
-      <div class="offline-ready-badge" id="offlineReadyBadge">
-        <span class="offline-ready-dot"></span>
-        <span id="offlineReadyText">⏳ 正在準備離線功能，請稍候幾秒…</span>
-      </div>
-      <div class="howto-strip">
-        <svg viewBox="0 0 400 222" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
-          <!-- 手機1：主畫面找設定 -->
-          <g transform="translate(0,0)">
-            <rect x="4" y="4" width="104" height="182" rx="18" fill="#1D3050"/>
-            <rect x="12" y="18" width="88" height="154" rx="6" fill="#F5F3ED"/>
-            <rect x="42" y="10" width="24" height="4" rx="2" fill="#1D3050"/>
-            <!-- app icon grid -->
-            <rect x="22" y="30" width="20" height="20" rx="6" fill="#D8D3C4"/>
-            <rect x="48" y="30" width="20" height="20" rx="6" fill="#D8D3C4"/>
-            <rect x="74" y="30" width="20" height="20" rx="6" fill="#D8D3C4"/>
-            <rect x="22" y="56" width="20" height="20" rx="6" fill="#D8D3C4"/>
-            <rect x="74" y="56" width="20" height="20" rx="6" fill="#D8D3C4"/>
-            <!-- highlighted settings gear icon -->
-            <circle cx="58" cy="66" r="17" fill="none" stroke="#FF6B4A" stroke-width="2.5"/>
-            <rect x="48" y="56" width="20" height="20" rx="6" fill="#4A5A78"/>
-            <text x="58" y="70" text-anchor="middle" font-size="13" fill="#F5F3ED">⚙</text>
-            <text x="58" y="105" text-anchor="middle" font-size="8.5" fill="#5A6A88" font-weight="700">設定</text>
-          </g>
-          <text x="56" y="200" text-anchor="middle" font-size="11.5" fill="#F5F3ED" font-weight="700">① 打開「設定」</text>
-
-          <text x="128" y="98" font-size="20" fill="#4A5F80">›</text>
-
-          <!-- 手機2：設定選單找Wi-Fi -->
-          <g transform="translate(146,0)">
-            <rect x="4" y="4" width="104" height="182" rx="18" fill="#1D3050"/>
-            <rect x="12" y="18" width="88" height="154" rx="6" fill="#F5F3ED"/>
-            <rect x="42" y="10" width="24" height="4" rx="2" fill="#1D3050"/>
-            <!-- menu rows -->
-            <rect x="20" y="30" width="72" height="14" rx="3" fill="#E4E0D4"/>
-            <rect x="20" y="49" width="72" height="16" rx="4" fill="none" stroke="#FF6B4A" stroke-width="2.5"/>
-            <text x="26" y="60" font-size="9.5" fill="#1D3050" font-weight="700">📶 Wi-Fi</text>
-            <rect x="20" y="70" width="72" height="14" rx="3" fill="#E4E0D4"/>
-            <rect x="20" y="89" width="72" height="14" rx="3" fill="#E4E0D4"/>
-          </g>
-          <text x="202" y="200" text-anchor="middle" font-size="11.5" fill="#F5F3ED" font-weight="700">② 點「Wi-Fi」</text>
-
-          <text x="274" y="98" font-size="20" fill="#4A5F80">›</text>
-
-          <!-- 手機3：Wi-Fi清單點名字 -->
-          <g transform="translate(292,0)">
-            <rect x="4" y="4" width="104" height="182" rx="18" fill="#1D3050"/>
-            <rect x="12" y="18" width="88" height="154" rx="6" fill="#F5F3ED"/>
-            <rect x="42" y="10" width="24" height="4" rx="2" fill="#1D3050"/>
-            <!-- wifi network rows -->
-            <rect x="20" y="30" width="72" height="13" rx="3" fill="#E4E0D4"/>
-            <rect x="20" y="48" width="72" height="16" rx="4" fill="#1F4A42"/>
-            <text x="26" y="59" font-size="8" fill="#4FD1AE" font-weight="700">✓ Family-WiFi</text>
-            <rect x="20" y="69" width="72" height="13" rx="3" fill="#E4E0D4"/>
-            <rect x="20" y="87" width="72" height="13" rx="3" fill="#E4E0D4"/>
-          </g>
-          <text x="348" y="196" text-anchor="middle" font-size="11" fill="#F5F3ED" font-weight="700">
-            <tspan x="348" dy="0">③ 點擊相同的</tspan>
-            <tspan x="348" dy="13">連線名稱</tspan>
-          </text>
-        </svg>
-      </div>
-      <p class="section-lead">連上後照著卡片上的順序點就好，每個地方都不用輸入密碼。</p>
-
-
-      <div class="wifi-card" data-key="familymart" data-speak="全家 Fami-WiFi。第一步，連線 Family-WiFi。第二步，勾選同意。第三步，點開始上網。免個資，每次三十分鐘，一天可以用三次。">
-        <div class="wifi-card-head">
-          <div class="wifi-icon"><img src="familymart.png" alt="全家"></div>
-          <div>
-            <div class="wifi-name">全家超商</div>
-            <div class="wifi-ssid">連線名稱：Family-WiFi</div>
-          </div>
-        </div>
-        <ol class="steps">
-          <li class="step"><span class="step-num">1</span><span class="step-text">連線「Family-WiFi」</span></li>
-          <li class="step"><span class="step-num">2</span><span class="step-text">勾選「我同意」</span></li>
-          <li class="step"><span class="step-num">3</span><span class="step-text">點「開始上網」</span></li>
-        </ol>
-        <div class="wifi-note">🕒 免個資、免填資料 · 每次30分鐘 · 一天最多3次</div>
-        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
-        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
-      </div>
-
-      <div class="wifi-card" data-key="mrt" data-speak="捷運或政府機關。第一步，連線 TPE-Free 或 iTaiwan。第二步，勾選同意。第三步，點連線。不限次數，每次三十分鐘，斷線可以無限次重新連線，站內通常有免費充電座。">
-        <div class="wifi-card-head">
-          <div class="wifi-icon"><img src="mrt.png" alt="捷運"></div>
-          <div>
-            <div class="wifi-name">捷運站・政府機關</div>
-            <div class="wifi-ssid">連線名稱：TPE-Free 或 iTaiwan</div>
-          </div>
-        </div>
-        <ol class="steps">
-          <li class="step"><span class="step-num">1</span><span class="step-text">連線「TPE-Free」或「iTaiwan」</span></li>
-          <li class="step"><span class="step-num">2</span><span class="step-text">勾選「我同意」</span></li>
-          <li class="step"><span class="step-num">3</span><span class="step-text">點「連線」</span></li>
-        </ol>
-        <div class="wifi-note">🔌 不限次數 · 每次30分鐘，斷線可再連 · 站內通常有充電座</div>
-        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
-        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
-      </div>
-
-      <div class="wifi-card" data-key="seven11" data-speak="7-11 超商。第一步，連線 7-ELEVEN-WiFi。第二步，帳號密碼會自動幫你填好。第三步，直接點登入。志工已經幫你設定好帳號，每次三十分鐘，一天可以用三次。">
-        <div class="wifi-card-head">
-          <div class="wifi-icon"><img src="seven11.png" alt="7-11"></div>
-          <div>
-            <div class="wifi-name">7-11 超商</div>
-            <div class="wifi-ssid">連線名稱：7-ELEVEN-WiFi</div>
-          </div>
-        </div>
-        <ol class="steps">
-          <li class="step"><span class="step-num">1</span><span class="step-text">連線「7-ELEVEN-WiFi」</span></li>
-          <li class="step"><span class="step-num">2</span><span class="step-text">帳號密碼會自動填好</span></li>
-          <li class="step"><span class="step-num">3</span><span class="step-text">直接點「登入」</span></li>
-        </ol>
-        <div class="wifi-note">✅ 志工已幫你設定好帳號 · 每次30分鐘 · 一天最多3次</div>
-        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
-        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
-      </div>
-
-      <div class="wifi-card" data-key="mcdonalds" data-speak="麥當勞，備用避雨點。第一步，連線 McDonalds_WiFi。第二步，點同意並開始上網。">
-        <div class="wifi-card-head">
-          <div class="wifi-icon"><img src="mcdonalds.png" alt="麥當勞"></div>
-          <div>
-            <div class="wifi-name">麥當勞</div>
-            <div class="wifi-ssid">連線名稱：McDonalds_WiFi</div>
-          </div>
-        </div>
-        <ol class="steps">
-          <li class="step"><span class="step-num">1</span><span class="step-text">連線「McDonalds_WiFi」</span></li>
-          <li class="step"><span class="step-num">2</span><span class="step-text">點「同意並開始上網」</span></li>
-        </ol>
-        <div class="wifi-note">☔ 備用避雨點</div>
-        <button class="speak-btn" data-speak-btn>🔊 唸出來</button>
-        <button class="confirm-btn" data-confirm-btn>☑️ 我已經連上了</button>
-      </div>
-    </section>
-
-    <!-- ============ 求助 ============ -->
-    <section class="tab-panel" id="panel-sos">
-      <a class="maps-link-btn" href="https://www.google.com/maps" target="_blank" rel="noopener">🧭 打開 Google 地圖找路（需要網路）</a>
-
-      <div class="sos-warning">
-        ⚠️ 這些電話需要手機「還有門號、還有通話訊號」才能打通，光靠 Wi-Fi 是打不出去的。
-        如果手機沒有門號，可以請商店店員幫忙用店裡電話撥打。
-      </div>
-
-      <a class="sos-btn sos-1957" href="tel:1957">
-        <span class="sos-icon">☎️</span>
-        <span class="sos-body">
-          <span class="sos-num">1957</span>
-          <span class="sos-label">福利諮詢專線・免付費・24小時（急難救助、安置、外宿協助）</span>
-        </span>
-      </a>
-
-      <a class="sos-btn sos-119" href="tel:119">
-        <span class="sos-icon">🚑</span>
-        <span class="sos-body">
-          <span class="sos-num">119</span>
-          <span class="sos-label">救護車・火災</span>
-        </span>
-      </a>
-
-      <a class="sos-btn sos-110" href="tel:110">
-        <span class="sos-icon">🚓</span>
-        <span class="sos-body">
-          <span class="sos-num">110</span>
-          <span class="sos-label">報警</span>
-        </span>
-      </a>
-    </section>
-
-    <!-- ============ 在地資源（志工可自行編輯下方 RESOURCES 陣列） ============ -->
-    <section class="tab-panel" id="panel-res">
-      <p class="section-lead">在地收容、供餐、盥洗資訊，由志工依當地實際狀況填寫更新。允許定位的話，會自動依距離排序，並顯示目前是否營業中。</p>
-      <div class="today-badge" id="todayBadge"></div>
-      <div id="resList"></div>
-      <a class="feedback-btn" id="feedbackBtn" href="#" target="_blank" rel="noopener" style="display:none;">✏️ 發現資訊有誤，或想新增地點？點此回報</a>
-    </section>
-
-  </main>
-
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="wifi"><span class="nav-icon">📶</span>上網</button>
-    <button class="nav-btn" data-tab="res"><span class="nav-icon">📍</span>在地資源</button>
-    <button class="nav-btn nav-sos" data-tab="sos"><span class="nav-icon">🆘</span>求助</button>
-  </nav>
 </div>
 
 <script>
 /* =========================================================
-   志工編輯區：在地資源
-   直接修改下面這個陣列即可新增/修改資源，不用動其他程式碼。
-   type 決定圖示： shelter=🛏 收容避寒 / food=🍚 供餐 / wash=🚿 盥洗如廁
-   lat/lng：可選填，填了才能依距離排序（用 Google 地圖長按該地點取得經緯度）
-   hours：可選填，填了才能顯示「營業中/非營業時間」。格式：星期 開始-結束
-          星期用 1-7（1=一、7=日），可以用逗號或範圍，例如 1-5 或 1,3,5 或 1-5,7
-          例如："1-5 09:00-17:00" 表示週一到週五 9 點到 17 點
+   志工編輯區：把 Google 日曆的公開嵌入網址貼在這裡
    ========================================================= */
-const RESOURCES = [
-  // 範例（請刪除並換成當地志工確認過的真實資訊）：
-  // { type:"shelter", title:"XX 區臨時收容所", items:["地址：____","開放時間：____","電話：____"], lat:25.0367, lng:121.4998, hours:"1-5 09:00-17:00" },
-];
+const CALENDAR_EMBED_URL = ""; // 例如 "https://calendar.google.com/calendar/embed?src=xxxx%40group.calendar.google.com&ctz=Asia%2FTaipei"
 
-/* =========================================================
-   Google 試算表串接（志工不用碰程式碼就能新增資源）
-   設定方式：
-   1. 建一個 Google 試算表，第一列（標題列）依序填：
-      type,title,item1,item2,item3,item4,lat,lng,hours
-      type 只能填 shelter / food / wash 三種之一
-      lat、lng、hours 這三欄可以留空不填，只是留空就不會有距離排序跟營業中提示
-      例如第二列：shelter,萬華臨時收容所,地址：____,開放時間：____,電話：____,,25.0367,121.4998,1-5 09:00-17:00
-   2. 檔案 → 共用 → 發布到網路 → 選這張工作表、格式選 CSV → 複製連結
-   3. 把連結貼到下面 GOOGLE_SHEET_CSV_URL 這行的引號中間即可，其餘不用改
-   ========================================================= */
-const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4LqmDOLZTRz5NAklX2VLui_uRFU6XMHvQvCN_hhRLKtsWOh6aoOJtjyGHRdR6V4abhIImdsAou1D2/pub?output=csv";
+/* 志工報名表單連結（用跟「在地資源回饋」表單一樣的方式建一個新的 Google 表單即可） */
+const SIGNUP_FORM_URL = ""; // 例如 "https://docs.google.com/forms/d/e/xxxx/viewform"
 
-/* =========================================================
-   「回報資訊有誤 / 志工投稿新資源」的表單連結
-   建一個 Google 表單（欄位建議：想做什麼？[新增地點/回報有誤]、
-   地點名稱、詳細說明、聯絡方式(可留空)），
-   記得「回應」設定裡不要打開「收集電子郵件地址」，
-   這樣填表單完全不用登入、不用留信箱。
-   建好後把分享連結貼到下面引號中間即可，其餘不用改。
-   留空的話，「在地資源」分頁就不會顯示這個按鈕。
-   ========================================================= */
-const FEEDBACK_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdZf_2_1EFtPIrFdM6kej8IFO3Vwiv5LIphmPZngrs5uh6xNQ/viewform";
-
-function initFeedbackButton(){
-  const btn = document.getElementById("feedbackBtn");
-  if (!btn || !FEEDBACK_FORM_URL) return;
-  btn.href = FEEDBACK_FORM_URL;
-  btn.style.display = "flex";
-}
-initFeedbackButton();
-
-function parseCSV(text){
-  return text.trim().split(/\r?\n/).map(line=>{
-    const cells = [];
-    let cur = "", inQuotes = false;
-    for (let i=0;i<line.length;i++){
-      const c = line[i];
-      if (c === '"'){ inQuotes = !inQuotes; }
-      else if (c === "," && !inQuotes){ cells.push(cur); cur=""; }
-      else { cur += c; }
-    }
-    cells.push(cur);
-    return cells.map(c=>c.trim());
-  });
+const frame = document.getElementById("calendarFrame");
+const fallback = document.getElementById("calendarFallback");
+if (CALENDAR_EMBED_URL){
+  frame.src = CALENDAR_EMBED_URL;
+} else {
+  frame.style.display = "none";
+  fallback.style.display = "block";
 }
 
-async function loadResourcesFromSheet(){
-  if (!GOOGLE_SHEET_CSV_URL) return; // 尚未設定，跳過
-  try{
-    const res = await fetch(GOOGLE_SHEET_CSV_URL);
-    const text = await res.text();
-    localStorage.setItem("resourcesCSV", text); // 存起來，離線時也能用上次抓到的資料
-    applyCSV(text);
-  }catch(e){
-    const cached = localStorage.getItem("resourcesCSV");
-    if (cached) applyCSV(cached);
-  }
+const signupBtn = document.getElementById("signupBtn");
+if (SIGNUP_FORM_URL){
+  signupBtn.href = SIGNUP_FORM_URL;
+} else {
+  signupBtn.style.opacity = "0.5";
+  signupBtn.textContent = "報名表單尚未設定";
 }
-
-function applyCSV(text){
-  const rows = parseCSV(text);
-  const body = rows[0] && rows[0][0] && rows[0][0].toLowerCase() === "type" ? rows.slice(1) : rows;
-  const fromSheet = body
-    .filter(r => r[0] && r[1])
-    .map(r => ({
-      type: r[0].trim(),
-      title: r[1].trim(),
-      items: r.slice(2,6).map(x=>(x||"").trim()).filter(Boolean),
-      lat: r[6] ? parseFloat(r[6]) : null,
-      lng: r[7] ? parseFloat(r[7]) : null,
-      hours: r[8] ? r[8].trim() : null
-    }));
-  if (fromSheet.length){
-    RESOURCES.length = 0;
-    RESOURCES.push(...fromSheet);
-    renderResources();
-  }
-}
-
-const RES_META = {
-  shelter:{icon:"🛏", label:"收容・避寒"},
-  food:{icon:"🍚", label:"供餐資訊"},
-  wash:{icon:"🚿", label:"盥洗・如廁"}
-};
-
-/* ---------- GPS 依距離排序 + 營業中判斷 ---------- */
-let userPos = null;      // { lat, lng }，允許定位後才會有值
-let geoRequested = false; // 避免重複跳出定位權限請求
-
-function distanceMeters(lat1, lng1, lat2, lng2){
-  const R = 6371000;
-  const toRad = Math.PI / 180;
-  const dLat = (lat2 - lat1) * toRad;
-  const dLng = (lng2 - lng1) * toRad;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*toRad)*Math.cos(lat2*toRad)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-function formatDistance(m){
-  return m >= 1000 ? (m/1000).toFixed(1) + " 公里" : Math.round(m/10)*10 + " 公尺";
-}
-
-// 解析 "1-5 09:00-17:00" 這種格式，看不懂就回傳 null（等於沒有營業時間資訊）
-// 有做容錯處理：不管是打「-」還是從 Google 地圖複製貼上常見的「–」「—」「~」都看得懂，全形數字、全形冒號、多餘空格也會自動修正
-function parseHours(str){
-  if (!str) return null;
-  const normalized = str
-    .replace(/[–—～]/g, "-")           // 各種長短破折號、波浪號 → 標準連字號
-    .replace(/[：]/g, ":")              // 全形冒號 → 半形冒號
-    .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)) // 全形數字 → 半形數字
-    .replace(/\s*-\s*/g, "-")           // 連字號前後多餘空格去掉
-    .trim();
-  const parts = normalized.split(/\s+/);
-  if (parts.length < 2) return null;
-  const timeMatch = parts[parts.length-1].match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
-  if (!timeMatch) return null;
-  const days = new Set();
-  parts.slice(0, -1).join(",").split(",").forEach(seg=>{
-    const rangeMatch = seg.match(/^(\d)-(\d)$/);
-    if (rangeMatch){
-      for (let d=+rangeMatch[1]; d<=+rangeMatch[2]; d++) days.add(d);
-    } else if (/^\d$/.test(seg)){
-      days.add(+seg);
-    }
-  });
-  if (days.size === 0) return null;
-  return { days, startMin:(+timeMatch[1])*60+(+timeMatch[2]), endMin:(+timeMatch[3])*60+(+timeMatch[4]) };
-}
-
-// 回傳 true=營業中 / false=非營業時間 / null=沒有資料可判斷
-function isOpenNow(hoursStr){
-  const parsed = parseHours(hoursStr);
-  if (!parsed) return null;
-  const now = new Date();
-  const isoDay = now.getDay() === 0 ? 7 : now.getDay();
-  if (!parsed.days.has(isoDay)) return false;
-  const nowMin = now.getHours()*60 + now.getMinutes();
-  return nowMin >= parsed.startMin && nowMin <= parsed.endMin;
-}
-
-const WEEKDAY_LABELS = ["日","一","二","三","四","五","六"];
-function updateTodayBadge(){
-  const el = document.getElementById("todayBadge");
-  if (!el) return;
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,"0");
-  const mm = String(now.getMinutes()).padStart(2,"0");
-  el.textContent = `🕒 今天是星期${WEEKDAY_LABELS[now.getDay()]}，現在 ${hh}:${mm}`;
-}
-
-function requestUserLocation(){
-  if (geoRequested || !("geolocation" in navigator)) return;
-  geoRequested = true;
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      renderResources();
-    },
-    () => { /* 拒絕或定位失敗：安靜略過，資源仍會照原順序顯示 */ },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-  );
-}
-
-function renderResources(){
-  const list = document.getElementById("resList");
-  if (RESOURCES.length === 0){
-    list.innerHTML = `<div class="res-card">
-      <div class="res-head"><span class="res-icon">📍</span><span class="res-title">尚未填寫在地資源</span></div>
-      <div class="res-empty">志工可以透過 Google 試算表新增當地收容所、供餐、盥洗地點的資訊，這裡就會自動顯示。</div>
-    </div>`;
-    return;
-  }
-
-  // 幫每筆資源算距離（有座標、也有使用者位置才算得出來）
-  const enriched = RESOURCES.map(r => {
-    const dist = (userPos && r.lat && r.lng) ? distanceMeters(userPos.lat, userPos.lng, r.lat, r.lng) : null;
-    const open = isOpenNow(r.hours);
-    return { ...r, dist, open };
-  });
-
-  // 有距離的排前面（近到遠），沒有距離的維持原順序排在最後
-  enriched.sort((a, b) => {
-    if (a.dist === null && b.dist === null) return 0;
-    if (a.dist === null) return 1;
-    if (b.dist === null) return -1;
-    return a.dist - b.dist;
-  });
-
-  list.innerHTML = enriched.map(r => {
-    const meta = RES_META[r.type] || {icon:"📍", label:"資源"};
-    const statusBadge = r.open === true
-      ? `<span class="res-badge open">🟢 營業中</span>`
-      : r.open === false
-        ? `<span class="res-badge closed">⚪ 非營業時間</span>`
-        : "";
-    const distText = r.dist !== null ? `<span class="res-distance">📍 距離你約 ${formatDistance(r.dist)}</span>` : "";
-    const cardClass = r.open === false ? "res-card dimmed" : "res-card";
-    return `<div class="${cardClass}">
-      <div class="res-head">
-        <span class="res-icon">${meta.icon}</span>
-        <span class="res-title">${r.title}</span>
-        ${statusBadge}
-      </div>
-      ${distText}
-      ${r.items.map(i => `<div class="res-item">${i}</div>`).join("")}
-    </div>`;
-  }).join("");
-}
-renderResources();
-loadResourcesFromSheet();
-updateTodayBadge();
-setInterval(updateTodayBadge, 60000); // 每分鐘更新一次時間顯示
-
-/* ---------- 底部導覽切換 ---------- */
-const navBtns = document.querySelectorAll(".nav-btn");
-navBtns.forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    navBtns.forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
-    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
-    window.scrollTo({top:0, behavior:"instant"});
-    if (btn.dataset.tab === "res") requestUserLocation();
-  });
-});
-
-/* ---------- 「我已經連上了」確認按鈕（本機記住，重開網頁還記得） ---------- */
-document.querySelectorAll("[data-confirm-btn]").forEach(btn=>{
-  const card = btn.closest("[data-key]");
-  const storeKey = "wifi-confirmed-" + card.dataset.key;
-  function applyState(){
-    const done = localStorage.getItem(storeKey) === "1";
-    btn.classList.toggle("done", done);
-    btn.textContent = done ? "✅ 已連線成功" : "☑️ 我已經連上了";
-  }
-  try{ applyState(); }catch(e){}
-  btn.addEventListener("click", ()=>{
-    try{
-      const done = localStorage.getItem(storeKey) === "1";
-      if (done){ localStorage.removeItem(storeKey); } else { localStorage.setItem(storeKey, "1"); }
-      applyState();
-    }catch(e){}
-  });
-});
-
-/* ---------- 語音朗讀（給不識字或視力不好的使用者） ---------- */
-document.querySelectorAll("[data-speak-btn]").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    const card = btn.closest("[data-speak]");
-    const text = card.getAttribute("data-speak");
-    if (!("speechSynthesis" in window)){
-      alert("這支手機的瀏覽器不支援語音朗讀");
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "zh-TW";
-    u.rate = 0.95;
-    window.speechSynthesis.speak(u);
-  });
-});
-
-/* ---------- 網路狀態顯示（呼應「離線也能用」的核心承諾） ---------- */
-function updateStatus(){
-  const online = navigator.onLine;
-  document.body.classList.toggle("is-offline", !online);
-  document.getElementById("statusText").textContent = online ? "目前有網路" : "目前離線";
-  document.getElementById("statusSub").textContent = online
-    ? "正在背景更新最新資料"
-    : "資料已存在手機裡，離線也能看";
-}
-window.addEventListener("online", updateStatus);
-window.addEventListener("offline", updateStatus);
-updateStatus();
-
-/* =========================================================
-   極端天氣示警（用免費、不需申請金鑰的 Open-Meteo 氣象服務）
-   台北市中心座標寫死在這裡，判斷今天的最高溫、最低溫，
-   超過門檻就在頁面上方顯示警示。抓不到資料（例如離線）就安靜跳過。
-   ========================================================= */
-async function checkWeatherWarning(){
-  const el = document.getElementById("weatherWarning");
-  if (!el) return;
-  try{
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=25.0478&longitude=121.5319&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTaipei&forecast_days=1";
-    const res = await fetch(url);
-    const data = await res.json();
-    const tMax = data?.daily?.temperature_2m_max?.[0];
-    const tMin = data?.daily?.temperature_2m_min?.[0];
-    if (typeof tMax !== "number" || typeof tMin !== "number") return;
-
-    if (tMax >= 34){
-      el.textContent = `🥵 今日高溫來到 ${Math.round(tMax)}°C，請多喝水、盡量待在陰涼處，避免長時間曝曬`;
-      el.className = "weather-warning heat";
-      el.style.display = "flex";
-    } else if (tMin <= 10){
-      el.textContent = `🥶 今日低溫下探 ${Math.round(tMin)}°C，請注意保暖，需要避寒地點可到「在地資源」分頁查詢`;
-      el.className = "weather-warning cold";
-      el.style.display = "flex";
-    } else {
-      el.style.display = "none";
-    }
-  }catch(e){
-    // 離線或服務打不開時安靜略過，不影響其他功能
-  }
-}
-checkWeatherWarning();
-
-/* ---------- 安裝提示（只在尚未安裝時顯示） ---------- */
-let deferredPrompt;
-window.addEventListener("beforeinstallprompt", (e)=>{
-  e.preventDefault();
-  deferredPrompt = e;
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-  if (!isStandalone) document.getElementById("installBanner").classList.add("show");
-});
-document.getElementById("installBanner").addEventListener("click", async ()=>{
-  if (deferredPrompt){
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    document.getElementById("installBanner").classList.remove("show");
-  }
-});
-
-/* ---------- 註冊 Service Worker：離線快取 + 背景自動更新 ---------- */
-if ("serviceWorker" in navigator){
-  window.addEventListener("load", ()=>{
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
-  });
-}
-
-/* ---------- 離線功能準備狀態顯示（給使用者明確訊號：現在可以安全斷網了） ---------- */
-(function(){
-  const badge = document.getElementById("offlineReadyBadge");
-  const text = document.getElementById("offlineReadyText");
-  if (!badge || !text) return;
-
-  function markReady(){
-    badge.classList.add("ready");
-    text.textContent = "✅ 離線功能已準備好，可以安全斷網了";
-  }
-
-  if (!("serviceWorker" in navigator)){
-    text.textContent = "⚠️ 這個瀏覽器不支援離線功能，請改用 Chrome 或 Safari 開啟";
-    return;
-  }
-
-  // 這次載入這個頁面時，已經有生效中的 Service Worker 在控制 → 早就準備好了
-  if (navigator.serviceWorker.controller){
-    markReady();
-  } else {
-    // 第一次造訪：等 Service Worker 安裝並開始接管頁面
-    navigator.serviceWorker.addEventListener("controllerchange", markReady);
-    // 保險機制：太久還沒準備好，提示使用者重新整理一次
-    setTimeout(() => {
-      if (!badge.classList.contains("ready")){
-        text.textContent = "⚠️ 準備時間比較久，請確認網路穩定，或重新整理頁面一次";
-      }
-    }, 8000);
-  }
-})();
-
 </script>
 </body>
 </html>
