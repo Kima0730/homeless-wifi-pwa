@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1B2C">
+<title>志工招募・活動行事曆</title>
+<style>
+  :root{
+    --bg:#0F1B2C;
+    --surface:#16263D;
+    --surface-2:#1D3050;
+    --line:#2A3E5C;
+    --text:#F5F3ED;
+    --text-muted:#9FB0C7;
+    --teal:#4FD1AE;
+    --teal-dim:#1F4A42;
+    --amber:#FFC857;
+    --amber-dim:#4A3B18;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+  .app{max-width:720px; margin:0 auto; padding:0 16px 60px;}
+
+  h1{
+    font-size:26px;
+    font-weight:900;
+    margin:28px 0 6px;
+  }
+  .subtitle{
+    color:var(--text-muted);
+    font-size:15px;
+    line-height:1.7;
+    margin:0 0 24px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    font-size:18px;
+    font-weight:800;
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .calendar-wrap{
+    position:relative;
+    width:100%;
+    padding-top:75%; /* aspect ratio for embedded calendar */
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .calendar-wrap iframe{
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    border:0;
+  }
+  .calendar-fallback{
+    color:var(--text-muted);
+    font-size:14px;
+    line-height:1.7;
+    padding:20px;
+  }
+
+  .signup-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    min-height:60px;
+    margin-top:16px;
+    border-radius:12px;
+    border:none;
+    background:var(--teal);
+    color:#0B1A17;
+    font-size:16px;
+    font-weight:800;
+    text-decoration:none;
+  }
+
+  .info-item{
+    font-size:15px;
+    line-height:1.8;
+    color:var(--text);
+    margin:6px 0;
+  }
+  .info-item b{color:var(--teal);}
+
+  footer{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:12.5px;
+    margin-top:30px;
+    line-height:1.8;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <h1>🙋 志工招募</h1>
+  <p class="subtitle">看看最近有哪些街友服務活動需要人手，點日曆上的活動可以看詳情，想參加就點下面的報名按鈕。</p>
+
+  <div class="card">
+    <h2>📅 活動行事曆</h2>
+    <div class="calendar-wrap">
+      <!--
+        志工使用說明：
+        1. 把上面 Google 日曆設為「公開日曆」後，複製嵌入代碼裡的網址
+           （通常長得像 https://calendar.google.com/calendar/embed?src=xxxx%40group.calendar.google.com&ctz=Asia%2FTaipei）
+        2. 貼到下面 iframe 的 src="" 引號中間即可
+      -->
+      <iframe src="" title="志工活動行事曆" id="calendarFrame"></iframe>
+    </div>
+    <div class="calendar-fallback" id="calendarFallback" style="display:none;">
+      日曆尚未設定，請聯絡網站管理者。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✋ 我要報名</h2>
+    <p class="info-item">看到想參加的活動，點下面按鈕填一個簡單表單，我們會再跟你確認時間地點。</p>
+    <a class="signup-btn" id="signupBtn" href="#" target="_blank" rel="noopener">✋ 我要報名志工活動</a>
+  </div>
+
+  <div class="card">
+    <h2>📢 想辦一場志工活動？</h2>
+    <p class="info-item">如果你是協會、機構或個人，想發起一場街友服務活動（例如供餐、物資發放、健康篩檢等），可以填表單提報，我們確認後會排進上面的行事曆。</p>
+    <a class="signup-btn" id="proposeBtn" href="#" target="_blank" rel="noopener" style="background:var(--amber); color:#3D2E00;">📢 提報一場活動</a>
+  </div>
+
+  <footer>
+    這個頁面是給志工使用的活動資訊頁，跟街友使用的「找網路・找幫助」是分開的兩個頁面。
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================
+   志工編輯區：把 Google 日曆的公開嵌入網址貼在這裡
+   ========================================================= */
+const CALENDAR_EMBED_URL = ""; // 例如 "https://calendar.google.com/calendar/embed?src=xxxx%40group.calendar.google.com&ctz=Asia%2FTaipei"
+
+/* 志工報名表單連結（用跟「在地資源回饋」表單一樣的方式建一個新的 Google 表單即可） */
+const SIGNUP_FORM_URL = ""; // 例如 "https://docs.google.com/forms/d/e/xxxx/viewform"
+
+/* 活動提報表單連結（給外部協會/機構提報想辦的活動，同樣用 Google 表單即可，
+   欄位建議：機構名稱、活動名稱、日期時間、地點、需要幾位志工、聯絡方式） */
+const PROPOSE_FORM_URL = ""; // 例如 "https://docs.google.com/forms/d/e/xxxx/viewform"
+
+const frame = document.getElementById("calendarFrame");
+const fallback = document.getElementById("calendarFallback");
+if (CALENDAR_EMBED_URL){
+  frame.src = CALENDAR_EMBED_URL;
+} else {
+  frame.style.display = "none";
+  fallback.style.display = "block";
+}
+
+const signupBtn = document.getElementById("signupBtn");
+if (SIGNUP_FORM_URL){
+  signupBtn.href = SIGNUP_FORM_URL;
+} else {
+  signupBtn.style.opacity = "0.5";
+  signupBtn.textContent = "報名表單尚未設定";
+}
+
+const proposeBtn = document.getElementById("proposeBtn");
+if (PROPOSE_FORM_URL){
+  proposeBtn.href = PROPOSE_FORM_URL;
+} else {
+  proposeBtn.style.opacity = "0.5";
+  proposeBtn.textContent = "提報表單尚未設定";
+}
+</script>
+</body>
+</html>
